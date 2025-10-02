@@ -30,22 +30,45 @@ A modern MERN stack application for pharmaceutical distribution with complete tr
 - MongoDB Atlas (Cloud)
 
 ## 📁 Project Structure
-VitalMEDS/
-├── client/ # React frontend
-│ ├── src/
-│ │ ├── components/ # Reusable components
-│ │ ├── pages/ # Page components
-│ │ ├── contexts/ # React contexts
-│ │ ├── services/ # API services
-│ │ └── ...
-│ └── package.json
-├── server/ # Node.js backend
-│ ├── controllers/ # Route controllers
-│ ├── models/ # Mongoose models
-│ ├── routes/ # API routes
-│ ├── middleware/ # Custom middleware
-│ └── package.json
-└── README.md
+
+    VitalMEDS/
+    ├── client/ # React frontend
+    │ ├── public/ # Static assets
+    │ ├── src/
+    │ │ ├── components/ # Reusable components
+    │ │ │ ├── ui/ # shadcn/ui components
+    │ │ │ ├── common/ # Common components (Navbar, etc.)
+    │ │ │ └── layouts/ # Layout components
+    │ │ ├── pages/ # Page components
+    │ │ │ ├── client/ # Client-specific pages
+    │ │ │ ├── LandingPage.jsx
+    │ │ │ └── HomePage.jsx
+    │ │ ├── contexts/ # React contexts
+    │ │ │ └── AuthContext.jsx
+    │ │ ├── services/ # API services
+    │ │ │ └── api.js
+    │ │ ├── App.jsx
+    │ │ ├── main.jsx
+    │ │ └── index.css
+    │ ├── package.json
+    │ ├── vite.config.js
+    │ └── tailwind.config.js
+    ├── server/ # Node.js backend
+    │ ├── controllers/ # Route controllers
+    │ │ └── authController.js
+    │ ├── models/ # Mongoose models
+    │ │ └── User.js
+    │ ├── routes/ # API routes
+    │ │ └── authRoutes.js
+    │ ├── middleware/ # Custom middleware
+    │ │ └── auth.js
+    │ ├── config/ # Configuration files
+    │ ├── server.js
+    │ ├── package.json
+    │ └── .env
+    ├── .gitignore
+    ├── .gitattributes
+    └── README.md
 
 ---
 ## 🚀 Getting Started
@@ -56,98 +79,94 @@ VitalMEDS/
 - Git
 
 ### Installation
-1.  **Clone the repository**
+#### 1.  **Clone the repository**
     ```bash
     git clone <your-repo-url>
     cd VitalMEDS
     ```
-2.  **Install backend dependencies**
+#### 2.  **Install backend dependencies**
     ```bash
     cd server
     npm install
     ```
-3.  **Install frontend dependencies**
+#### 3.  **Install frontend dependencies**
     ```bash
     cd ../client
     npm install
     ```
 
 ### Environment Setup
-Create a `.env` file in the `server` directory with the following variables:
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=your_mongodb_atlas_connection_string
-JWT_SECRET=your_jwt_secret_key
-FRONTEND_URL=http://localhost:5173
+- Create a `.env` file in the `server` directory with the following variables:
+- NODE_ENV=development
+- PORT=5000
+- MONGODB_URI=your_mongodb_atlas_connection_string
+- JWT_SECRET=your_jwt_secret_key
+- FRONTEND_URL=http://localhost:5173
 
 
 ### Start the development servers
-**Backend (in one terminal):**
+
+#### **Backend (in one terminal):**
 ```bash
 cd server
 npm run dev
-Frontend (in a new terminal):
+```
 
-Bash
-
+#### **Frontend (in a new terminal):**
+```bash
 cd client
 npm run dev
-Access the application
-Frontend: http://localhost:5173
+```
 
-Backend API: http://localhost:5000
+### Access the application
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:5000
 
-🧪 Testing
-Manual Testing Flow
-Registration: Create a new business account.
+## 🧪 Testing
 
-Database Verification: Check the new user document in your MongoDB database.
+### Manual Testing Flow
 
-Admin Approval: Manually update the user's status to "Approved".
+1.  **Registration**: Create a new business account.
+2.  **Database Verification**: Check the user document in MongoDB.
+3.  **Admin Approval**: Manually update the user status to "Approved".
+4.  **Login**: Sign in with the approved account.
+5.  **Protected Routes**: Access the dashboard and features.
 
-Login: Sign in with the approved account.
+---
+## 🔐 Authentication Flow
 
-Protected Routes: Verify you can access the dashboard and other private pages.
+1.  A user registers with their business details.
+2.  The account is created with a "Pending Approval" status.
+3.  The admin manually verifies and approves the account.
+4.  The user can then log in and access the full platform.
+5.  A JWT is stored in `localStorage` with a 3-day expiration to keep the user logged in.
 
-🔐 Authentication Flow
-A user registers with their business details.
+---
+## 🚀 Deployment
 
-The account is created with a "Pending Approval" status.
+-   **Frontend**: Vercel, Netlify (recommended)
+-   **Backend**: Render, Railway
+-   **Database**: MongoDB Atlas
 
-The admin manually verifies and approves the account.
+---
+## 🤝 Contributing
 
-The user can then log in and access the full platform.
+1.  Fork the repository.
+2.  Create a feature branch (`git checkout -b feature/AmazingFeature`).
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4.  Push to the branch (`git push origin feature/AmazingFeature`).
+5.  Open a Pull Request.
 
-A JWT is stored in localStorage with a 3-day expiration to keep the user logged in.
+---
+## 📧 Contact
 
-🚀 Deployment
-Frontend: Vercel, Netlify (recommended)
+- Project Developer - Amarnath Nayak
+- Project Link: https://github.com/Amar-03creator/VitalMeds.git
+- Mail: 456amarnath@gmail.com
 
-Backend: Render, Railway
+---
+## 📄 License
 
-Database: MongoDB Atlas
-
-🤝 Contributing
-Fork the repository.
-
-Create a feature branch (git checkout -b feature/AmazingFeature).
-
-Commit your changes (git commit -m 'Add some AmazingFeature').
-
-Push to the branch (git push origin feature/AmazingFeature).
-
-Open a Pull Request.
-
-📧 Contact
-Project Developer - Amarnath Nayak
-Project Link: https://github.com/Amar-03creator/VitalMeds.git
-
-📄 License
 This project is licensed under the MIT License.
-
-
-
-
-
 
 
