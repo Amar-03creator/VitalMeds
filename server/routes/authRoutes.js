@@ -18,6 +18,34 @@ router.post('/login', loginUser);
 // @access  Private
 router.get('/profile', protect, getProfile);
 
+// @route   GET /api/auth/verify - ADD THIS NEW ROUTE
+// @desc    Verify JWT token and get user data
+// @access  Private
+router.get('/verify', protect, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.user.userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: user
+    });
+  } catch (error) {
+    console.error('❌ Token verification error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error in token verification'
+    });
+  }
+});
+
 // @route   GET /api/auth/test
 // @desc    Test auth routes
 // @access  Public
