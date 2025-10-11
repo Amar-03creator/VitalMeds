@@ -1,3 +1,4 @@
+// server/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -27,9 +28,11 @@ mongoose.connect(process.env.MONGODB_URL)
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
+const productRoutes = require('./routes/productRoutes'); // Add this line
 
 // Use routes
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes); // Add this line
 
 // Test route
 app.get('/api/test', (req, res) => {
@@ -60,8 +63,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Handle 404 routes - FIXED for Express v5
-app.use('/{*catchall}', (req, res) => {
+// Handle 404 routes
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found`
@@ -73,4 +76,15 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`\n📚 Available Routes:`);
+  console.log(`   - POST   /api/auth/register`);
+  console.log(`   - POST   /api/auth/login`);
+  console.log(`   - GET    /api/auth/profile`);
+  console.log(`   - GET    /api/auth/verify`);
+  console.log(`   - GET    /api/products`);
+  console.log(`   - GET    /api/products/:id`);
+  console.log(`   - GET    /api/products/filters/metadata`);
+  console.log(`   - POST   /api/products (admin)`);
+  console.log(`   - PUT    /api/products/:id (admin)`);
+  console.log(`   - DELETE /api/products/:id (admin)`);
 });

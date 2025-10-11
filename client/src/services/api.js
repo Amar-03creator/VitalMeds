@@ -1,9 +1,10 @@
+// client/src/services/api.js
 import axios from 'axios';
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  timeout: 10000,
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  timeout: 15000, // Increased timeout for complex queries
   headers: {
     'Content-Type': 'application/json',
   },
@@ -19,6 +20,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -33,8 +35,24 @@ api.interceptors.response.use(
     
     // Handle specific error cases
     if (error.response?.status === 401) {
+      // Unauthorized - clear token and redirect to login
       localStorage.removeItem('token');
-      window.location.href = '/';
+      window.location.href = '/login'; // Changed from '/' to '/login'
+    } else if (error.response?.status === 403) {
+      // Forbidden - user doesn't have permission
+      console.error('Access forbidden:', error.response.data.message);
+    } else if (error.response?.status === 404) {
+      // Not found
+      console.error('Resource not found:', error.response.data.message);
+    } else if (error.response?.status >= 500) {
+      // Server error
+      console.error('Server error:', error.response.data.message);
+    } else if (error.code === 'ECONNABORTED') {
+      // Timeout error
+      console.error('Request timeout');
+    } else if (!error.response) {
+      // Network error
+      console.error('Network error - Please check your connection');
     }
     
     return Promise.reject(error);

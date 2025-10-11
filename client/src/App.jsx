@@ -10,19 +10,21 @@ import LandingPage from '@/pages/LandingPage';
 import LoginPage from '@/pages/client/LoginPage';
 import RegisterPage from '@/pages/client/RegisterPage';
 import HomePage from '@/pages/HomePage';
+import ProductsPage from '@/pages/client/ProductsPage';
 
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vitalmeds-ui-theme">
       <AuthProvider>
         <Router>
-          {/* REMOVED bg-background and text-foreground from here */}
           <div className="min-h-screen">
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               
+              {/* Protected Routes */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Navbar />
@@ -30,6 +32,15 @@ function App() {
                 </ProtectedRoute>
               } />
               
+              {/* Add separate Products route */}
+              <Route path="/products" element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <ProductsPage />
+                </ProtectedRoute>
+              } />
+              
+              {/* Catch all - redirect to landing */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>

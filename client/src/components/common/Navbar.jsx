@@ -1,5 +1,8 @@
+// src/components/common/Navbar.jsx
+// Replace the entire file with this updated version
+
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -37,12 +40,15 @@ import {
   Sun
 } from 'lucide-react';
 
+
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { theme, setTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
 
   // Navigation items for sidebar/mobile
   const navItems = [
@@ -55,27 +61,36 @@ const Navbar = () => {
     { title: 'Settings', path: '/settings', icon: Settings },
   ];
 
+
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log('Searching for:', searchQuery);
+    if (searchQuery.trim()) {
+      // Navigate to products page with search query
+      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
+    }
     setIsSearchExpanded(false);
   };
+
 
   const handleLogout = () => {
     logout();
   };
+
 
   const getUserInitials = () => {
     const name = user?.ownerName || user?.shopName || 'User';
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200/50 dark:border-gray-700/40 bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl shadow-sm shadow-black/5">
+
 
       <div className="w-full px-4 lg:px-6">
         <div className="flex h-16 items-center justify-between gap-4">
@@ -88,7 +103,8 @@ const Navbar = () => {
               </div>
             </Link>
 
-            {/* Desktop Navigation - Without Home */}
+
+            {/* Desktop Navigation */}
             <nav className={`hidden lg:flex items-center gap-6 transition-all duration-500 ease-in-out ${isSearchExpanded ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
               {navItems.slice(0, 3).map((item) => {
                 const Icon = item.icon;
@@ -110,13 +126,13 @@ const Navbar = () => {
             </nav>
           </div>
 
-          {/* Center Section - Smooth Width-only Expanding Search */}
+
+          {/* Center Section - Expanding Search */}
           <div
             className={`hidden md:flex mx-4 items-center ${isSearchExpanded ? 'flex-1' : ''}`}
           >
             <form onSubmit={handleSearch} className="relative w-full" aria-label="Search form">
               <div
-                // animate width only for smoother transition
                 style={{
                   width: isSearchExpanded ? 'min(60vw, 900px)' : '320px',
                   willChange: 'width, box-shadow'
@@ -124,10 +140,10 @@ const Navbar = () => {
                 className={`mx-auto rounded-full overflow-hidden transition-[width] duration-[380ms] ease-in-out ${isSearchExpanded ? 'shadow-2xl ring-2 ring-primary/30' : 'shadow-sm'}`}
               >
                 <div className="relative">
-                  {/* Left icon — animate transform (GPU) */}
                   <div className={`absolute left-3 top-1/2 -translate-y-1/2 transform transition-transform duration-300 ease-out ${isSearchExpanded ? 'scale-110 text-primary' : 'scale-100 text-muted-foreground'}`} aria-hidden>
-                    <Search className="h-5 w-5" onClick={handleSearch} />
+                    <Search className="h-5 w-5" />
                   </div>
+
 
                   <Input
                     type="search"
@@ -147,13 +163,13 @@ const Navbar = () => {
                     className={`pl-12 pr-12 border-0 bg-white/90 dark:bg-gray-800/90 transition-[padding,color] duration-300 ease-in-out ${isSearchExpanded ? 'h-12 text-base' : 'h-10 text-sm'}`}
                   />
 
-                  {/* subtle focus overlay */}
+
                   <div
                     className={`absolute inset-0 rounded-full pointer-events-none transition-opacity duration-300 ${isSearchExpanded ? 'opacity-20' : 'opacity-0'}`}
                     style={{ boxShadow: isSearchExpanded ? '0 10px 30px rgba(16, 185, 129, 0.12)' : 'none' }}
                   />
 
-                  {/* Clear/Close button — fade/scale */}
+
                   <div className={`absolute right-3 top-1/2 -translate-y-1/2 transition-all duration-250 ease-out ${isSearchExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'}`}>
                     {searchQuery ? (
                       <button
@@ -183,14 +199,21 @@ const Navbar = () => {
             </form>
           </div>
 
+
           {/* Right Section - Actions & Profile */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Search Icon for Mobile */}
-            <Button variant="ghost" size="icon" className="md:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="md:hidden"
+              onClick={() => navigate('/products')}
+            >
               <Search className="h-5 w-5" />
             </Button>
 
-            {/* Notifications - Hidden when search expanded */}
+
+            {/* Notifications */}
             {!isSearchExpanded && (
               <Button variant="ghost" size="icon" className="relative hidden md:inline-flex">
                 <Bell className="h-5 w-5" />
@@ -203,22 +226,29 @@ const Navbar = () => {
               </Button>
             )}
 
-            {/* Messages/Support - Hidden when search expanded */}
+
+            {/* Messages/Support */}
             {!isSearchExpanded && (
               <Button variant="ghost" size="icon" className="hidden lg:inline-flex">
                 <MessageSquare className="h-5 w-5" />
               </Button>
             )}
 
-            {/* New Order Button - Hidden when search expanded */}
+
+            {/* New Order Button */}
             {!isSearchExpanded && (
-              <Button size="sm" className="hidden lg:inline-flex">
+              <Button 
+                size="sm" 
+                className="hidden lg:inline-flex"
+                onClick={() => navigate('/products')}
+              >
                 <Plus className="h-4 w-4 mr-1" />
                 New Order
               </Button>
             )}
 
-            {/* Dark Mode Toggle - Shows current theme icon */}
+
+            {/* Dark Mode Toggle */}
             <Button
               variant="ghost"
               size="icon"
@@ -231,6 +261,7 @@ const Navbar = () => {
                 <Sun className="h-5 w-5 text-amber-500" />
               )}
             </Button>
+
 
             {/* Profile Dropdown */}
             <DropdownMenu>
@@ -267,6 +298,7 @@ const Navbar = () => {
                   </div>
                 </DropdownMenuLabel>
 
+
                 <DropdownMenuSeparator className="bg-gray-300/50 dark:bg-gray-600/50" />
                 <DropdownMenuItem asChild className="focus:bg-gray-200/50 dark:focus:bg-gray-700/50">
                   <Link to="/profile" className="flex items-center py-2 text-gray-900 dark:text-gray-100">
@@ -290,6 +322,7 @@ const Navbar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+
 
             {/* Mobile Menu Trigger */}
             <Sheet>
@@ -327,5 +360,6 @@ const Navbar = () => {
     </header>
   );
 };
+
 
 export default Navbar;
