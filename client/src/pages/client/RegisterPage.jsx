@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { useTheme } from '@/contexts/ThemeProvider';
+import { ThemeProvider } from '@/contexts/ThemeProvider'
+import { useTheme } from '@/contexts/useTheme'
 import {
   User,
   Mail,

@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeProvider';
+import { ThemeProvider } from '@/contexts/ThemeProvider'
+import { useTheme } from '@/contexts/useTheme'
 import { Star, Heart, ShoppingBag, RotateCcw, IndianRupee } from 'lucide-react';
 
 const TopProducts = () => {

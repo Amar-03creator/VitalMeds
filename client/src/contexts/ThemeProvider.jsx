@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react'
 
-const ThemeProviderContext = createContext({
+export const ThemeProviderContext = createContext({
   theme: 'system',
   setTheme: () => null,
-});
+})
 
 export function ThemeProvider({
   children,
@@ -13,46 +13,32 @@ export function ThemeProvider({
 }) {
   const [theme, setTheme] = useState(
     () => (typeof window !== 'undefined' && localStorage.getItem(storageKey)) || defaultTheme
-  );
+  )
 
   useEffect(() => {
-    const root = window.document.documentElement;
-
-    root.classList.remove('light', 'dark');
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
 
     if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
-
-      root.classList.add(systemTheme);
-      return;
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      root.classList.add(systemTheme)
+      return
     }
 
-    root.classList.add(theme);
-  }, [theme]);
+    root.classList.add(theme)
+  }, [theme])
 
   const value = {
     theme,
     setTheme: (theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
+      localStorage.setItem(storageKey, theme)
+      setTheme(theme)
     },
-  };
+  }
 
   return (
     <ThemeProviderContext.Provider {...props} value={value}>
       {children}
     </ThemeProviderContext.Provider>
-  );
+  )
 }
-
-// Export useTheme as a named export to fix Fast Refresh
-export const useTheme = () => {
-  const context = useContext(ThemeProviderContext);
-
-  if (context === undefined)
-    throw new Error('useTheme must be used within a ThemeProvider');
-
-  return context;
-};

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { IndianRupee } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeProvider';
+import { ThemeProvider } from '@/contexts/ThemeProvider'
+import { useTheme } from '@/contexts/useTheme'
 
 const MonthlySummary = () => {
   const { theme } = useTheme();

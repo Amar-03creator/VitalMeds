@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useTheme } from '@/contexts/ThemeProvider';
+import { ThemeProvider } from '@/contexts/ThemeProvider'
+import { useTheme } from '@/contexts/useTheme'
 import {
   Building,
   ShoppingCart,

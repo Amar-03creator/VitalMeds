@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useTheme } from '@/contexts/ThemeProvider';
+import { ThemeProvider } from '@/contexts/ThemeProvider'
+import { useTheme } from '@/contexts/useTheme'
 
 const TrustBadges = () => {
   const { user } = useAuth();
