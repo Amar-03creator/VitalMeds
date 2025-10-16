@@ -2,21 +2,17 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageSquare } from 'lucide-react';
-// Optional: import { useNavigate } from 'react-router-dom'; if adding navigation
 
 const MessagesButton = ({ isSearchExpanded }) => {
-  // Optional: const navigate = useNavigate(); for routing
-
   return (
-    isSearchExpanded && (
+    !isSearchExpanded && (
       <Button
         variant="ghost"
         size="icon"
-        className="h-9 hidden md:inline-flex !bg-gray-600 hover:!bg-gray-700"
-        // onClick={() => navigate('/messages')} // Uncomment and adjust path if needed
+        className="h-9 hidden md:inline-flex bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800"
         onClick={() => {}}
       >
-        <MessageSquare className="h-4 w-4" />
+        <MessageSquare className="h-5 w-5" />
       </Button>
     )
   );

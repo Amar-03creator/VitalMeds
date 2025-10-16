@@ -15,7 +15,7 @@ import {
   Sparkles
 } from 'lucide-react';
 
-const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
+const ProductCard = ({ product, viewMode, userStatus }) => {
   const [quantity, setQuantity] = useState(1);
   const isApproved = userStatus === 'Approved';
   const isOutOfStock = product.stock === 0;
@@ -27,25 +27,11 @@ const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
 
   if (viewMode === 'list') {
     return (
-      <Card
-        className="hover:shadow-lg transition-all"
-        style={{
-          backgroundColor: isDark ? '#1e293b' : '#ffffff',
-          borderColor: isDark ? '#334155' : '#e2e8f0'
-        }}
-      >
+      <Card className="hover:shadow-lg transition-all bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
         <div className="flex flex-col md:flex-row">
           {/* Product Image Placeholder */}
-          <div
-            className="md:w-48 h-48 flex items-center justify-center"
-            style={{
-              backgroundColor: isDark ? '#0f172a' : '#f8fafc'
-            }}
-          >
-            <Package
-              className="w-16 h-16"
-              style={{ color: isDark ? '#475569' : '#cbd5e1' }}
-            />
+          <div className="md:w-48 h-48 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+            <Package className="w-16 h-16 text-slate-300 dark:text-slate-600" />
           </div>
 
           {/* Product Info */}
@@ -53,78 +39,44 @@ const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <h3
-                    className="text-xl font-semibold"
-                    style={{ color: isDark ? '#ffffff' : '#0f172a' }}
-                  >
+                  <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
                     {product.name}
                   </h3>
                   {product.isNew && (
-                    <Badge
-                      style={{
-                        background: 'linear-gradient(to right, #10b981, #059669)',
-                        color: '#ffffff'
-                      }}
-                    >
+                    <Badge className="bg-gradient-to-r from-green-600 to-green-700 text-white border-0">
                       <Sparkles className="w-3 h-3 mr-1" />
                       New
                     </Badge>
                   )}
                 </div>
                 <div className="flex items-center gap-4 text-sm mb-2">
-                  <span
-                    className="flex items-center gap-1"
-                    style={{ color: isDark ? '#94a3b8' : '#64748b' }}
-                  >
+                  <span className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
                     <Building className="w-4 h-4" />
                     {product.company}
                   </span>
-                  <Badge
-                    variant="outline"
-                    style={{
-                      backgroundColor: isDark ? '#1e3a8a' : '#dbeafe',
-                      borderColor: isDark ? '#3b82f6' : '#93c5fd',
-                      color: isDark ? '#60a5fa' : '#1e40af'
-                    }}
-                  >
+                  <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-400">
                     {product.category}
                   </Badge>
                 </div>
-                <p
-                  className="text-sm flex items-center gap-1 mb-1"
-                  style={{ color: isDark ? '#94a3b8' : '#64748b' }}
-                >
+                <p className="text-sm flex items-center gap-1 mb-1 text-slate-600 dark:text-slate-400">
                   <FlaskConical className="w-4 h-4" />
                   {product.composition}
                 </p>
-                <p
-                  className="text-xs"
-                  style={{ color: isDark ? '#64748b' : '#94a3b8' }}
-                >
+                <p className="text-xs text-slate-500 dark:text-slate-500">
                   SKU: {product.sku} • Pack: {product.packSize}
                 </p>
               </div>
 
               <div className="text-right">
-                <div
-                  className="text-2xl font-bold mb-1"
-                  style={{ color: isDark ? '#60a5fa' : '#2563eb' }}
-                >
+                <div className="text-2xl font-bold mb-1 text-blue-600 dark:text-blue-500">
                   ₹{product.mrp}
                 </div>
                 <Badge
                   variant={isOutOfStock ? 'destructive' : 'secondary'}
-                  style={{
-                    backgroundColor: isOutOfStock 
-                      ? (isDark ? 'rgba(220, 38, 38, 0.2)' : '#fee2e2')
-                      : (isDark ? 'rgba(34, 197, 94, 0.2)' : '#dcfce7'),
-                    color: isOutOfStock
-                      ? (isDark ? '#fca5a5' : '#991b1b')
-                      : (isDark ? '#4ade80' : '#15803d'),
-                    borderColor: isOutOfStock
-                      ? (isDark ? '#dc2626' : '#fca5a5')
-                      : (isDark ? '#16a34a' : '#86efac')
-                  }}
+                  className={isOutOfStock 
+                    ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-300 dark:border-red-700'
+                    : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-300 dark:border-green-700'
+                  }
                 >
                   {isOutOfStock ? 'Out of Stock' : `${product.stock} in stock`}
                 </Badge>
@@ -139,11 +91,7 @@ const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
                   variant="outline"
                   onClick={() => handleQuantityChange(quantity - 1)}
                   disabled={!isApproved || isOutOfStock}
-                  style={{
-                    backgroundColor: isDark ? '#1e293b' : '#ffffff',
-                    borderColor: isDark ? '#475569' : '#cbd5e1',
-                    color: isDark ? '#cbd5e1' : '#334155'
-                  }}
+                  className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                 >
                   <Minus className="w-4 h-4" />
                 </Button>
@@ -151,38 +99,27 @@ const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
                   type="number"
                   value={quantity}
                   onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                  className="w-16 text-center"
+                  className="w-16 text-center bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
                   disabled={!isApproved || isOutOfStock}
-                  style={{
-                    backgroundColor: isDark ? '#0f172a' : '#ffffff',
-                    borderColor: isDark ? '#475569' : '#cbd5e1',
-                    color: isDark ? '#f1f5f9' : '#0f172a'
-                  }}
                 />
                 <Button
                   size="icon"
                   variant="outline"
                   onClick={() => handleQuantityChange(quantity + 1)}
                   disabled={!isApproved || isOutOfStock}
-                  style={{
-                    backgroundColor: isDark ? '#1e293b' : '#ffffff',
-                    borderColor: isDark ? '#475569' : '#cbd5e1',
-                    color: isDark ? '#cbd5e1' : '#334155'
-                  }}
+                  className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
               </div>
 
               <Button
-                className="flex-1 text-white"
+                className={`flex-1 text-white ${
+                  isApproved && !isOutOfStock
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+                    : 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed opacity-60'
+                }`}
                 disabled={!isApproved || isOutOfStock}
-                style={{
-                  background: (isApproved && !isOutOfStock)
-                    ? (isDark ? 'linear-gradient(to right, #3b82f6, #2563eb)' : 'linear-gradient(to right, #2563eb, #1d4ed8)')
-                    : (isDark ? '#334155' : '#cbd5e1'),
-                  opacity: (!isApproved || isOutOfStock) ? 0.6 : 1
-                }}
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 Add to Cart
@@ -190,11 +127,7 @@ const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
 
               <Button
                 variant="outline"
-                style={{
-                  backgroundColor: isDark ? 'transparent' : '#ffffff',
-                  color: isDark ? '#cbd5e1' : '#334155',
-                  borderColor: isDark ? '#475569' : '#cbd5e1'
-                }}
+                className="bg-transparent dark:bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 <Eye className="w-4 h-4 mr-2" />
                 Details
@@ -208,52 +141,19 @@ const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
 
   // Grid View Card
   return (
-    <Card
-      className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col"
-      style={{
-        backgroundColor: isDark ? '#1e293b' : '#ffffff',
-        borderColor: isDark ? '#334155' : '#e2e8f0',
-        height: '100%'
-      }}
-    >
+    <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col h-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
       {/* Product Image */}
-      <div
-        className="h-48 flex items-center justify-center relative"
-        style={{
-          backgroundColor: isDark ? '#0f172a' : '#f8fafc'
-        }}
-      >
-        <Package
-          className="w-20 h-20"
-          style={{ color: isDark ? '#475569' : '#cbd5e1' }}
-        />
+      <div className="h-48 flex items-center justify-center relative bg-slate-50 dark:bg-slate-900">
+        <Package className="w-20 h-20 text-slate-300 dark:text-slate-600" />
         {product.isNew && (
-          <Badge
-            className="absolute top-3 right-3"
-            style={{
-              background: 'linear-gradient(to right, #10b981, #059669)',
-              color: '#ffffff'
-            }}
-          >
+          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-green-600 to-green-700 text-white border-0">
             <Sparkles className="w-3 h-3 mr-1" />
             New
           </Badge>
         )}
         {isOutOfStock && (
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{
-              backgroundColor: isDark ? 'rgba(15, 23, 42, 0.8)' : 'rgba(248, 250, 252, 0.8)'
-            }}
-          >
-            <Badge
-              variant="destructive"
-              className="text-sm"
-              style={{
-                backgroundColor: isDark ? 'rgba(220, 38, 38, 0.9)' : '#dc2626',
-                color: '#ffffff'
-              }}
-            >
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-50/80 dark:bg-slate-900/80">
+            <Badge variant="destructive" className="text-sm bg-red-600 dark:bg-red-600/90 text-white">
               Out of Stock
             </Badge>
           </div>
@@ -261,76 +161,43 @@ const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
       </div>
 
       <CardHeader className="pb-3">
-        <CardTitle
-          className="text-lg line-clamp-1"
-          style={{ color: isDark ? '#ffffff' : '#0f172a' }}
-        >
+        <CardTitle className="text-lg line-clamp-1 text-slate-900 dark:text-white">
           {product.name}
         </CardTitle>
         <CardDescription className="flex items-center gap-2 flex-wrap">
-          <span
-            className="flex items-center gap-1 text-xs"
-            style={{ color: isDark ? '#94a3b8' : '#64748b' }}
-          >
+          <span className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
             <Building className="w-3 h-3" />
             {product.company}
           </span>
-          <Badge
-            variant="outline"
-            className="text-xs"
-            style={{
-              backgroundColor: isDark ? '#1e3a8a' : '#dbeafe',
-              borderColor: isDark ? '#3b82f6' : '#93c5fd',
-              color: isDark ? '#60a5fa' : '#1e40af'
-            }}
-          >
+          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-400">
             {product.category}
           </Badge>
         </CardDescription>
       </CardHeader>
 
       <CardContent className="flex-1 pb-3">
-        <p
-          className="text-sm mb-2 line-clamp-2 flex items-start gap-1"
-          style={{ color: isDark ? '#94a3b8' : '#64748b' }}
-        >
+        <p className="text-sm mb-2 line-clamp-2 flex items-start gap-1 text-slate-600 dark:text-slate-400">
           <FlaskConical className="w-4 h-4 mt-0.5 flex-shrink-0" />
           {product.composition}
         </p>
-        <p
-          className="text-xs mb-3"
-          style={{ color: isDark ? '#64748b' : '#94a3b8' }}
-        >
+        <p className="text-xs mb-3 text-slate-500 dark:text-slate-500">
           {product.packSize}
         </p>
         <div className="flex items-center justify-between">
           <div>
-            <p
-              className="text-xs mb-1"
-              style={{ color: isDark ? '#94a3b8' : '#64748b' }}
-            >
+            <p className="text-xs mb-1 text-slate-600 dark:text-slate-400">
               MRP
             </p>
-            <p
-              className="text-2xl font-bold"
-              style={{ color: isDark ? '#60a5fa' : '#2563eb' }}
-            >
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-500">
               ₹{product.mrp}
             </p>
           </div>
           <Badge
             variant={isOutOfStock ? 'destructive' : 'secondary'}
-            style={{
-              backgroundColor: isOutOfStock 
-                ? (isDark ? 'rgba(220, 38, 38, 0.2)' : '#fee2e2')
-                : (isDark ? 'rgba(34, 197, 94, 0.2)' : '#dcfce7'),
-              color: isOutOfStock
-                ? (isDark ? '#fca5a5' : '#991b1b')
-                : (isDark ? '#4ade80' : '#15803d'),
-              borderColor: isOutOfStock
-                ? (isDark ? '#dc2626' : '#fca5a5')
-                : (isDark ? '#16a34a' : '#86efac')
-            }}
+            className={isOutOfStock 
+              ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-300 dark:border-red-700'
+              : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-300 dark:border-green-700'
+            }
           >
             {isOutOfStock ? 'Out of Stock' : `${product.stock} units`}
           </Badge>
@@ -344,11 +211,7 @@ const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
             variant="outline"
             onClick={() => handleQuantityChange(quantity - 1)}
             disabled={!isApproved || isOutOfStock}
-            style={{
-              backgroundColor: isDark ? '#1e293b' : '#ffffff',
-              borderColor: isDark ? '#475569' : '#cbd5e1',
-              color: isDark ? '#cbd5e1' : '#334155'
-            }}
+            className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
           >
             <Minus className="w-4 h-4" />
           </Button>
@@ -356,49 +219,33 @@ const ProductCard = ({ product, viewMode, userStatus, isDark }) => {
             type="number"
             value={quantity}
             onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-            className="text-center"
+            className="text-center bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
             disabled={!isApproved || isOutOfStock}
-            style={{
-              backgroundColor: isDark ? '#0f172a' : '#ffffff',
-              borderColor: isDark ? '#475569' : '#cbd5e1',
-              color: isDark ? '#f1f5f9' : '#0f172a'
-            }}
           />
           <Button
             size="icon"
             variant="outline"
             onClick={() => handleQuantityChange(quantity + 1)}
             disabled={!isApproved || isOutOfStock}
-            style={{
-              backgroundColor: isDark ? '#1e293b' : '#ffffff',
-              borderColor: isDark ? '#475569' : '#cbd5e1',
-              color: isDark ? '#cbd5e1' : '#334155'
-            }}
+            className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
           >
             <Plus className="w-4 h-4" />
           </Button>
         </div>
         <Button
-          className="w-full text-white"
+          className={`w-full text-white ${
+            isApproved && !isOutOfStock
+              ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+              : 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed opacity-60'
+          }`}
           disabled={!isApproved || isOutOfStock}
-          style={{
-            background: (isApproved && !isOutOfStock)
-              ? (isDark ? 'linear-gradient(to right, #3b82f6, #2563eb)' : 'linear-gradient(to right, #2563eb, #1d4ed8)')
-              : (isDark ? '#334155' : '#cbd5e1'),
-            opacity: (!isApproved || isOutOfStock) ? 0.6 : 1
-          }}
         >
           <ShoppingCart className="w-4 h-4 mr-2" />
           Add to Cart
         </Button>
         <Button
           variant="outline"
-          className="w-full"
-          style={{
-            backgroundColor: isDark ? 'transparent' : '#ffffff',
-            color: isDark ? '#cbd5e1' : '#334155',
-            borderColor: isDark ? '#475569' : '#cbd5e1'
-          }}
+          className="w-full bg-transparent dark:bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
         >
           <Eye className="w-4 h-4 mr-2" />
           View Details

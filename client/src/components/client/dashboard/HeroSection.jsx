@@ -1,9 +1,8 @@
+// src/components/client/dashboard/HeroSection.jsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { ThemeProvider } from '@/contexts/ThemeProvider'
-import { useTheme } from '@/contexts/useTheme'
 import {
   CheckCircle,
   Clock,
@@ -16,7 +15,6 @@ import {
 
 const HeroSection = () => {
   const { user } = useAuth();
-  const { theme } = useTheme();
 
   const getHeroMessage = () => {
     if (user?.status !== 'Approved') {
@@ -25,19 +23,10 @@ const HeroSection = () => {
     return "Ready to reorder?";
   };
 
-  // Determine if we're in dark mode
-  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
   return (
-    <div 
-      className="relative overflow-hidden rounded-3xl text-white shadow-xl"
-      style={{
-        background: isDark 
-          ? 'linear-gradient(to right, #064e3b, #065f46, #0f766e)'
-          : 'linear-gradient(to right, #34d399, #10b981, #14b8a6)'
-      }}
-    >
-      <div className="absolute inset-0" style={{ backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)' }}></div>
+    <div className="relative overflow-hidden rounded-3xl text-white shadow-xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500 dark:from-emerald-900 dark:via-emerald-800 dark:to-teal-800">
+      <div className="absolute inset-0 bg-black/5 dark:bg-black/30"></div>
+      
       <div className="relative grid lg:grid-cols-2 gap-8 p-8 lg:p-12">
         {/* Left Content */}
         <div className="space-y-6">
@@ -55,20 +44,17 @@ const HeroSection = () => {
 
           {/* Status Badge */}
           <div className="flex flex-wrap items-center gap-3">
-            <Badge
-              variant={user?.status === 'Approved' ? 'secondary' : 'outline'}
-              className={`px-3 py-1 text-sm ${user?.status === 'Approved'
-                  ? 'bg-white/20 text-white border-white/30'
-                  : 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900 dark:text-amber-200 dark:border-amber-700'
-                }`}
-            >
-              {user?.status === 'Approved' ? (
+            {user?.status === 'Approved' ? (
+              <Badge className="px-3 py-1 text-sm bg-white/20 text-white border-white/30 hover:bg-white/25">
                 <CheckCircle className="w-4 h-4 mr-1" />
-              ) : (
+                {user?.status}
+              </Badge>
+            ) : (
+              <Badge className="px-3 py-1 text-sm bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900 dark:text-amber-200 dark:border-amber-700 hover:bg-amber-200 dark:hover:bg-amber-800">
                 <Clock className="w-4 h-4 mr-1" />
-              )}
-              {user?.status}
-            </Badge>
+                {user?.status}
+              </Badge>
+            )}
           </div>
 
           {/* CTAs */}

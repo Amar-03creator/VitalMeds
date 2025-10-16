@@ -4,10 +4,6 @@ const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
     className={`rounded-xl border bg-white dark:bg-gray-900 text-gray-900 dark:text-white shadow ${className}`}
-    style={{
-      backgroundColor: 'var(--card-bg, white)',
-      color: 'var(--card-fg, inherit)'
-    }}
     {...props}
   />
 ))

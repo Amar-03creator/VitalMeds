@@ -2,17 +2,14 @@ import React from 'react';
 import ProductCard from './ProductCard';
 import { Package } from 'lucide-react';
 
-const ProductGrid = ({ products, loading, viewMode, userStatus, isDark }) => {
+const ProductGrid = ({ products, loading, viewMode, userStatus }) => {
   if (loading) {
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <div
             key={i}
-            className="h-80 rounded-xl animate-pulse"
-            style={{
-              backgroundColor: isDark ? '#1e293b' : '#f1f5f9'
-            }}
+            className="h-80 rounded-xl animate-pulse bg-slate-200 dark:bg-slate-800"
           />
         ))}
       </div>
@@ -21,26 +18,12 @@ const ProductGrid = ({ products, loading, viewMode, userStatus, isDark }) => {
 
   if (products.length === 0) {
     return (
-      <div
-        className="text-center py-20 rounded-xl"
-        style={{
-          backgroundColor: isDark ? '#1e293b' : '#ffffff',
-          borderWidth: '1px',
-          borderStyle: 'solid',
-          borderColor: isDark ? '#334155' : '#e2e8f0'
-        }}
-      >
-        <Package
-          className="w-16 h-16 mx-auto mb-4"
-          style={{ color: isDark ? '#475569' : '#cbd5e1' }}
-        />
-        <h3
-          className="text-xl font-semibold mb-2"
-          style={{ color: isDark ? '#ffffff' : '#0f172a' }}
-        >
+      <div className="text-center py-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+        <Package className="w-16 h-16 mx-auto mb-4 text-slate-400 dark:text-slate-600" />
+        <h3 className="text-xl font-semibold mb-2 text-slate-900 dark:text-white">
           No products found
         </h3>
-        <p style={{ color: isDark ? '#94a3b8' : '#64748b' }}>
+        <p className="text-slate-600 dark:text-slate-400">
           Try adjusting your filters or search query
         </p>
       </div>
@@ -59,7 +42,6 @@ const ProductGrid = ({ products, loading, viewMode, userStatus, isDark }) => {
           product={product}
           viewMode={viewMode}
           userStatus={userStatus}
-          isDark={isDark}
         />
       ))}
     </div>

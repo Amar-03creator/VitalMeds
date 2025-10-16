@@ -1,9 +1,9 @@
+// src/components/client/dashboard/CarouselSlider.jsx
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ThemeProvider } from '@/contexts/ThemeProvider'
-import { useTheme } from '@/contexts/useTheme'
+import { useTheme } from '@/contexts/useTheme';
 import {
   ChevronLeft,
   ChevronRight,
@@ -30,8 +30,8 @@ const CarouselSlider = () => {
       description: 'Get up to 10% extra discount on immediate payments',
       badge: 'Limited Offer',
       cta: 'View All Products',
-      lightGradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%)',
-      darkGradient: 'linear-gradient(135deg, #9a3412 0%, #7c2d12 50%, #431407 100%)',
+      gradientLight: 'from-orange-400 via-orange-500 to-orange-600',
+      gradientDark: 'from-orange-900 via-orange-950 to-orange-950',
     },
     {
       type: 'bulk',
@@ -39,8 +39,8 @@ const CarouselSlider = () => {
       description: 'Special Rates for Orders Above ₹20,000',
       badge: 'Bulk Savings',
       cta: 'Send Inquiry Now',
-      lightGradient: 'linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #9333ea 100%)',
-      darkGradient: 'linear-gradient(135deg, #6b21a8 0%, #581c87 50%, #3b0764 100%)',
+      gradientLight: 'from-purple-400 via-purple-500 to-purple-600',
+      gradientDark: 'from-purple-900 via-purple-950 to-purple-950',
     },
     {
       type: 'companies',
@@ -48,8 +48,8 @@ const CarouselSlider = () => {
       description: 'Explore products from 4 verified pharmaceutical companies',
       badge: 'Company Gallery',
       cta: null,
-      lightGradient: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%)',
-      darkGradient: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #1e293b 100%)',
+      gradientLight: 'from-blue-400 via-blue-500 to-blue-600',
+      gradientDark: 'from-blue-900 via-blue-950 to-gray-900',
       showCompanies: true,
     },
     {
@@ -58,8 +58,8 @@ const CarouselSlider = () => {
       description: 'Browse by specialized treatment areas',
       badge: 'Categories',
       cta: null,
-      lightGradient: 'linear-gradient(135deg, #4ade80 0%, #22c55e 50%, #16a34a 100%)',
-      darkGradient: 'linear-gradient(135deg, #15803d 0%, #166534 50%, #14532d 100%)',
+      gradientLight: 'from-green-400 via-green-500 to-green-600',
+      gradientDark: 'from-green-900 via-green-950 to-green-950',
       showCategories: true,
       categories: ['Cardiac Range', 'Diabetic Care', 'Pain Management'],
     },
@@ -69,8 +69,8 @@ const CarouselSlider = () => {
       description: 'Simple 3-step process to place your order',
       badge: 'How To',
       cta: 'Learn Process',
-      lightGradient: 'linear-gradient(135deg, #2dd4bf 0%, #14b8a6 50%, #0d9488 100%)',
-      darkGradient: 'linear-gradient(135deg, #0f766e 0%, #115e59 50%, #134e4a 100%)',
+      gradientLight: 'from-teal-400 via-teal-500 to-teal-600',
+      gradientDark: 'from-teal-900 via-teal-950 to-teal-950',
     },
     {
       type: 'support',
@@ -78,8 +78,8 @@ const CarouselSlider = () => {
       description: '8 AM to 9 PM Pharmacist Support Available',
       badge: 'Support',
       cta: 'Contact Support',
-      lightGradient: 'linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #db2777 100%)',
-      darkGradient: 'linear-gradient(135deg, #9f1239 0%, #881337 50%, #4c0519 100%)',
+      gradientLight: 'from-pink-400 via-pink-500 to-pink-600',
+      gradientDark: 'from-pink-900 via-pink-950 to-pink-950',
     },
     {
       type: 'credit',
@@ -87,8 +87,8 @@ const CarouselSlider = () => {
       description: 'Flexible Payment Options Available',
       badge: 'Payment',
       cta: 'Know More',
-      lightGradient: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%)',
-      darkGradient: 'linear-gradient(135deg, #6d28d9 0%, #5b21b6 50%, #4c1d95 100%)',
+      gradientLight: 'from-violet-400 via-violet-500 to-violet-600',
+      gradientDark: 'from-violet-900 via-violet-950 to-violet-950',
     },
     {
       type: 'notice',
@@ -96,12 +96,11 @@ const CarouselSlider = () => {
       description: 'Updated delivery schedule for Diwali holidays - Oct 30-Nov 5',
       badge: 'Alert',
       cta: 'Read More',
-      lightGradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
-      darkGradient: 'linear-gradient(135deg, #b45309 0%, #92400e 50%, #78350f 100%)',
+      gradientLight: 'from-yellow-400 via-yellow-500 to-yellow-600',
+      gradientDark: 'from-yellow-900 via-yellow-950 to-yellow-950',
     },
   ];
 
-  // Auto-play carousel - 4 seconds
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
@@ -127,23 +126,13 @@ const CarouselSlider = () => {
           {carouselSlides.map((slide, index) => (
             <div
               key={index}
-              className="w-full flex-shrink-0 text-white relative"
-              style={{
-                background: isDark ? slide.darkGradient : slide.lightGradient,
-              }}
+              className={`w-full flex-shrink-0 text-white bg-gradient-to-r ${
+                isDark ? slide.gradientDark : slide.gradientLight
+              }`}
             >
               <div className="p-8 lg:p-12">
                 <div className="max-w-4xl mx-auto">
-                  <Badge
-                    variant="secondary"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                      color: '#ffffff',
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
-                      border: '1px solid',
-                    }}
-                    className="mb-4"
-                  >
+                  <Badge className="mb-4 bg-white/20 text-white border-white/30 hover:bg-white/25">
                     {slide.badge}
                   </Badge>
                   <h3 className="text-2xl lg:text-3xl font-bold mb-3">
@@ -155,27 +144,21 @@ const CarouselSlider = () => {
                   {slide.showCompanies && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                       {[1, 2, 3, 4].map((company) => {
-                        const [isHovered, setIsHovered] = React.useState(false);
+                        const [isHovered, setIsHovered] = useState(false);
                         return (
                           <div
                             key={company}
-                            className="rounded-lg p-6 flex items-center justify-center cursor-pointer transition-all"
-                            style={{
-                              backgroundColor: isHovered
-                                ? 'rgba(255, 255, 255, 0.3)'
-                                : 'rgba(255, 255, 255, 0.2)',
-                              backdropFilter: 'blur(10px)',
-                            }}
+                            className={`rounded-lg p-6 flex items-center justify-center cursor-pointer transition-all backdrop-blur ${
+                              isHovered ? 'bg-white/30' : 'bg-white/20'
+                            }`}
                             onClick={() => handleCompanyClick(company - 1)}
                             onMouseEnter={() => setIsHovered(true)}
                             onMouseLeave={() => setIsHovered(false)}
                           >
                             <Building
-                              className="w-12 h-12 transition-opacity"
-                              style={{
-                                color: '#ffffff',
-                                opacity: isHovered ? 1 : 0.8,
-                              }}
+                              className={`w-12 h-12 text-white transition-opacity ${
+                                isHovered ? 'opacity-100' : 'opacity-80'
+                              }`}
                             />
                           </div>
                         );
@@ -187,27 +170,21 @@ const CarouselSlider = () => {
                   {slide.showCategories && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                       {slide.categories.map((category, idx) => {
-                        const [isHovered, setIsHovered] = React.useState(false);
+                        const [isHovered, setIsHovered] = useState(false);
                         return (
                           <div
                             key={idx}
-                            className="rounded-lg p-4 text-center cursor-pointer transition-all"
-                            style={{
-                              backgroundColor: isHovered
-                                ? 'rgba(255, 255, 255, 0.3)'
-                                : 'rgba(255, 255, 255, 0.2)',
-                              backdropFilter: 'blur(10px)',
-                            }}
+                            className={`rounded-lg p-4 text-center cursor-pointer transition-all backdrop-blur ${
+                              isHovered ? 'bg-white/30' : 'bg-white/20'
+                            }`}
                             onClick={() => handleCategoryClick(category)}
                             onMouseEnter={() => setIsHovered(true)}
                             onMouseLeave={() => setIsHovered(false)}
                           >
                             <Grid3X3
-                              className="w-8 h-8 mx-auto mb-2 transition-opacity"
-                              style={{
-                                color: '#ffffff',
-                                opacity: isHovered ? 1 : 0.8,
-                              }}
+                              className={`w-8 h-8 mx-auto mb-2 text-white transition-opacity ${
+                                isHovered ? 'opacity-100' : 'opacity-80'
+                              }`}
                             />
                             <p className="font-medium text-sm">{category}</p>
                           </div>
@@ -218,14 +195,7 @@ const CarouselSlider = () => {
 
                   {/* CTA Button */}
                   {slide.cta && (
-                    <Button
-                      variant="secondary"
-                      style={{
-                        backgroundColor: '#ffffff',
-                        color: '#111827',
-                      }}
-                      className="hover:bg-gray-100"
-                    >
+                    <Button className="bg-white text-gray-900 hover:bg-gray-100">
                       {slide.type === 'bulk' && (
                         <Send className="w-4 h-4 mr-2" />
                       )}
@@ -255,11 +225,7 @@ const CarouselSlider = () => {
                   (prev - 1 + carouselSlides.length) % carouselSlides.length
               )
             }
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              color: '#ffffff',
-            }}
-            className="hover:bg-white/30"
+            className="bg-white/20 text-white hover:bg-white/30"
           >
             <ChevronLeft className="w-5 h-5" />
           </Button>
@@ -271,11 +237,7 @@ const CarouselSlider = () => {
             onClick={() =>
               setCurrentSlide((prev) => (prev + 1) % carouselSlides.length)
             }
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              color: '#ffffff',
-            }}
-            className="hover:bg-white/30"
+            className="bg-white/20 text-white hover:bg-white/30"
           >
             <ChevronRight className="w-5 h-5" />
           </Button>
@@ -288,14 +250,10 @@ const CarouselSlider = () => {
               key={index}
               onClick={() => setCurrentSlide(index)}
               className={`rounded-full transition-all ${
-                index === currentSlide ? 'w-8 h-2' : 'w-2 h-2'
+                index === currentSlide
+                  ? 'w-8 h-2 bg-white'
+                  : 'w-2 h-2 bg-white/50'
               }`}
-              style={{
-                backgroundColor:
-                  index === currentSlide
-                    ? '#ffffff'
-                    : 'rgba(255, 255, 255, 0.5)',
-              }}
             />
           ))}
         </div>

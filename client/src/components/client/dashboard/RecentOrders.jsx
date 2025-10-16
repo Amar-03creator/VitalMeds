@@ -1,24 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardHeader,
-  CardTitle,
-  CardDescription,
   CardContent,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ThemeProvider } from '@/contexts/ThemeProvider'
-import { useTheme } from '@/contexts/useTheme'
 import { Filter, Eye, RotateCcw, Receipt, IndianRupee } from 'lucide-react';
 
 const RecentOrders = () => {
-  const { theme } = useTheme();
-
-  const isDark =
-    theme === 'dark' ||
-    (theme === 'system' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const [hoveredId, setHoveredId] = useState(null);
 
   const recentOrders = [
     {
@@ -47,129 +38,77 @@ const RecentOrders = () => {
     },
   ];
 
-  const getStatusColors = (status) => {
-    const colors = {
-      Delivered: {
-        light: { bg: '#dcfce7', text: '#15803d', border: '#bbf7d0' },
-        dark: { bg: '#14532d', text: '#86efac', border: '#166534' },
-      },
-      'In Transit': {
-        light: { bg: '#dbeafe', text: '#1e40af', border: '#bfdbfe' },
-        dark: { bg: '#1e3a8a', text: '#93c5fd', border: '#1e40af' },
-      },
-      Dispatched: {
-        light: { bg: '#ffedd5', text: '#c2410c', border: '#fed7aa' },
-        dark: { bg: '#7c2d12', text: '#fdba74', border: '#9a3412' },
-      },
-      Pending: {
-        light: { bg: '#fef3c7', text: '#a16207', border: '#fde68a' },
-        dark: { bg: '#713f12', text: '#fcd34d', border: '#a16207' },
-      },
+  const getStatusClasses = (status) => {
+    const classes = {
+      Delivered: 'bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-300 dark:border-green-800',
+      'In Transit': 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-blue-300 dark:border-blue-800',
+      Dispatched: 'bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-400 border-orange-300 dark:border-orange-800',
+      Pending: 'bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-800',
     };
-
-    const statusColors = colors[status] || colors.Pending;
-    return isDark ? statusColors.dark : statusColors.light;
+    return classes[status] || classes.Pending;
   };
 
   return (
-    <Card
-      className="shadow-lg"
-      style={{
-        backgroundColor: isDark ? '#1f2937' : '#ffffff',
-        borderColor: isDark ? '#374151' : '#e5e7eb',
-      }}
-    >
-      <CardHeader
-        className="flex flex-row items-center justify-between"
-        style={{
-          backgroundColor: isDark ? '#1f2937' : '#ffffff',
-        }}
-      >
-        <div>
-          <CardTitle style={{ color: isDark ? '#f9fafb' : '#111827' }}>
-            Recent Orders
-          </CardTitle>
-          <CardDescription style={{ color: isDark ? '#9ca3af' : '#6b7280' }}>
-            Your latest order activity
-          </CardDescription>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            style={{
-              backgroundColor: isDark ? '#374151' : '#f9fafb',
-              borderColor: isDark ? '#4b5563' : '#e5e7eb',
-              color: isDark ? '#f9fafb' : '#111827',
-            }}
-          >
-            <Filter className="w-4 h-4 mr-1" />
-            Filter
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            style={{
-              backgroundColor: isDark ? '#374151' : '#f9fafb',
-              borderColor: isDark ? '#4b5563' : '#e5e7eb',
-              color: isDark ? '#f9fafb' : '#111827',
-            }}
-          >
-            View All
-          </Button>
+    <Card className="shadow-lg bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg dark:text-xl font-semibold dark:font-bold text-gray-900 dark:text-white">
+              Recent Orders
+            </h3>
+            <p className="text-xs dark:text-sm text-gray-600 dark:text-gray-400 mt-0.5">
+              Your latest order activity
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
+            >
+              <Filter className="w-4 h-4 mr-1" />
+              Filter
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
+            >
+              View All
+            </Button>
+          </div>
         </div>
       </CardHeader>
-      <CardContent
-        style={{
-          backgroundColor: isDark ? '#1f2937' : '#ffffff',
-        }}
-      >
+      <CardContent>
         <div className="space-y-4">
           {recentOrders.map((order) => {
-            const statusColors = getStatusColors(order.status);
-            const [isHovered, setIsHovered] = React.useState(false);
+            const isHovered = hoveredId === order.id;
 
             return (
               <div
                 key={order.id}
-                className="p-4 border rounded-lg transition-all"
-                style={{
-                  backgroundColor: isHovered
-                    ? isDark
-                      ? '#374151'
-                      : '#f9fafb'
-                    : isDark
-                    ? '#111827'
-                    : '#ffffff',
-                  borderColor: isDark ? '#4b5563' : '#e5e7eb',
-                }}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+                className={`p-4 border rounded-lg transition-all ${
+                  isHovered
+                    ? 'bg-gray-50 dark:bg-gray-700'
+                    : 'bg-white dark:bg-gray-900'
+                } border-gray-200 dark:border-gray-600`}
+                onMouseEnter={() => setHoveredId(order.id)}
+                onMouseLeave={() => setHoveredId(null)}
               >
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <span
-                        className="font-medium"
-                        style={{ color: isDark ? '#f9fafb' : '#111827' }}
-                      >
+                      <span className="font-medium text-gray-900 dark:text-white">
                         {order.id}
                       </span>
                       <Badge
-                        style={{
-                          backgroundColor: statusColors.bg,
-                          color: statusColors.text,
-                          borderColor: statusColors.border,
-                          border: '1px solid',
-                        }}
+                        variant="outline"
+                        className={getStatusClasses(order.status)}
                       >
                         {order.status}
                       </Badge>
                     </div>
-                    <div
-                      className="flex items-center gap-3 text-sm"
-                      style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
-                    >
+                    <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
                       <span>{order.date}</span>
                       <span>•</span>
                       <span>{order.items} items</span>
@@ -178,10 +117,7 @@ const RecentOrders = () => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div
-                      className="font-semibold flex items-center justify-end mb-2"
-                      style={{ color: isDark ? '#f9fafb' : '#111827' }}
-                    >
+                    <div className="font-semibold flex items-center justify-end mb-2 text-gray-900 dark:text-white">
                       <IndianRupee className="w-4 h-4" />
                       {order.amount.toLocaleString()}
                     </div>
@@ -189,21 +125,21 @@ const RecentOrders = () => {
                       <Button
                         size="sm"
                         variant="ghost"
-                        style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       >
                         <RotateCcw className="w-4 h-4" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        style={{ color: isDark ? '#9ca3af' : '#6b7280' }}
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       >
                         <Receipt className="w-4 h-4" />
                       </Button>

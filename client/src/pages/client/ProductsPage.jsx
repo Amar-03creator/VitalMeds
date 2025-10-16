@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useTheme } from '@/contexts/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import ProductFilters from '@/components/client/products/ProductFilters';
 import ProductGrid from '@/components/client/products/ProductGrid';
@@ -21,7 +20,6 @@ import {
 } from 'lucide-react';
 
 const ProductsPage = () => {
-  const { theme } = useTheme();
   const { user } = useAuth();
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(true);
@@ -36,8 +34,6 @@ const ProductsPage = () => {
     sortBy: 'name_asc'
   });
   const [searchParams] = useSearchParams();
-
-  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -87,26 +83,15 @@ const ProductsPage = () => {
 
   return (
     <>
-      <div
-        className="min-h-screen pb-8"
-        style={{
-          backgroundColor: isDark ? '#020617' : '#f8fafc'
-        }}
-      >
+      <div className="min-h-screen pb-8 bg-slate-50 dark:bg-slate-950">
         <div className="container mx-auto px-4 py-6">
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1
-                  className="text-3xl font-bold mb-2"
-                  style={{ color: isDark ? '#ffffff' : '#0f172a' }}
-                >
+                <h1 className="text-3xl font-bold mb-2 text-slate-900 dark:text-white">
                   Medicine Catalog
                 </h1>
-                <p
-                  className="text-sm"
-                  style={{ color: isDark ? '#94a3b8' : '#64748b' }}
-                >
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   Browse our extensive collection of authentic pharmaceutical products
                 </p>
               </div>
@@ -115,32 +100,22 @@ const ProductsPage = () => {
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="icon"
+                  className={viewMode === 'grid' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-transparent text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }
                   onClick={() => setViewMode('grid')}
-                  style={{
-                    backgroundColor: viewMode === 'grid'
-                      ? (isDark ? '#3b82f6' : '#2563eb')
-                      : 'transparent',
-                    color: viewMode === 'grid'
-                      ? '#ffffff'
-                      : (isDark ? '#cbd5e1' : '#64748b'),
-                    borderColor: isDark ? '#475569' : '#cbd5e1'
-                  }}
                 >
                   <Grid3x3 className="w-4 h-4" />
                 </Button>
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'outline'}
                   size="icon"
+                  className={viewMode === 'list' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-transparent text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }
                   onClick={() => setViewMode('list')}
-                  style={{
-                    backgroundColor: viewMode === 'list'
-                      ? (isDark ? '#3b82f6' : '#2563eb')
-                      : 'transparent',
-                    color: viewMode === 'list'
-                      ? '#ffffff'
-                      : (isDark ? '#cbd5e1' : '#64748b'),
-                    borderColor: isDark ? '#475569' : '#cbd5e1'
-                  }}
                 >
                   <List className="w-4 h-4" />
                 </Button>
@@ -148,14 +123,7 @@ const ProductsPage = () => {
             </div>
 
             {user?.status !== 'Approved' && (
-              <Alert
-                className="mb-4"
-                style={{
-                  backgroundColor: isDark ? 'rgba(251, 191, 36, 0.1)' : '#fef3c7',
-                  borderColor: isDark ? '#f59e0b' : '#fbbf24',
-                  color: isDark ? '#fcd34d' : '#92400e'
-                }}
-              >
+              <Alert className="mb-4 bg-yellow-50 dark:bg-yellow-900/10 border-yellow-400 dark:border-yellow-600 text-yellow-900 dark:text-yellow-400">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   Your account is pending approval. You can browse products but cannot place orders until verified.
@@ -166,30 +134,22 @@ const ProductsPage = () => {
 
           <ProductSearch
             onSearch={(value) => handleFilterChange({ search: value })}
-            isDark={isDark}
           />
 
           {(filters.company.length > 0 || filters.category.length > 0 || filters.inStock) && (
             <div className="flex flex-wrap gap-2 mb-4">
-              <span
-                className="text-sm font-medium"
-                style={{ color: isDark ? '#cbd5e1' : '#64748b' }}
-              >
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
                 Active Filters:
               </span>
               {filters.company.map((company) => (
                 <Badge
                   key={company}
                   variant="secondary"
-                  className="cursor-pointer"
+                  className="cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                   onClick={() => {
                     handleFilterChange({
                       company: filters.company.filter(c => c !== company)
                     });
-                  }}
-                  style={{
-                    backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
-                    color: isDark ? '#e2e8f0' : '#334155'
                   }}
                 >
                   {company} ×
@@ -199,15 +159,11 @@ const ProductsPage = () => {
                 <Badge
                   key={cat}
                   variant="secondary"
-                  className="cursor-pointer"
+                  className="cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                   onClick={() => {
                     handleFilterChange({
                       category: filters.category.filter(c => c !== cat)
                     });
-                  }}
-                  style={{
-                    backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
-                    color: isDark ? '#e2e8f0' : '#334155'
                   }}
                 >
                   {cat} ×
@@ -216,12 +172,8 @@ const ProductsPage = () => {
               {filters.inStock && (
                 <Badge
                   variant="secondary"
-                  className="cursor-pointer"
+                  className="cursor-pointer bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
                   onClick={() => handleFilterChange({ inStock: false })}
-                  style={{
-                    backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
-                    color: isDark ? '#e2e8f0' : '#334155'
-                  }}
                 >
                   In Stock Only ×
                 </Badge>
@@ -229,6 +181,7 @@ const ProductsPage = () => {
               <Button
                 variant="ghost"
                 size="sm"
+                className="text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
                 onClick={() => setFilters({
                   search: '',
                   company: [],
@@ -237,7 +190,6 @@ const ProductsPage = () => {
                   inStock: false,
                   sortBy: 'name_asc'
                 })}
-                style={{ color: isDark ? '#ef4444' : '#dc2626' }}
               >
                 Clear All
               </Button>
@@ -250,7 +202,6 @@ const ProductsPage = () => {
                 <ProductFilters
                   filters={filters}
                   onFilterChange={handleFilterChange}
-                  isDark={isDark}
                 />
               </div>
             )}
@@ -260,12 +211,7 @@ const ProductsPage = () => {
                 <Button
                   variant="outline"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="w-full"
-                  style={{
-                    backgroundColor: isDark ? 'transparent' : '#ffffff',
-                    color: isDark ? '#cbd5e1' : '#334155',
-                    borderColor: isDark ? '#475569' : '#cbd5e1'
-                  }}
+                  className="w-full bg-white dark:bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
                   <SlidersHorizontal className="w-4 h-4 mr-2" />
                   {showFilters ? 'Hide' : 'Show'} Filters
@@ -273,21 +219,13 @@ const ProductsPage = () => {
               </div>
 
               <div className="flex items-center justify-between mb-4">
-                <p
-                  className="text-sm"
-                  style={{ color: isDark ? '#94a3b8' : '#64748b' }}
-                >
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   Showing <span className="font-semibold">{products.length}</span> products
                 </p>
                 <select
                   value={filters.sortBy}
                   onChange={(e) => handleFilterChange({ sortBy: e.target.value })}
-                  className="px-4 py-2 rounded-lg text-sm border"
-                  style={{
-                    backgroundColor: isDark ? '#1e293b' : '#ffffff',
-                    color: isDark ? '#e2e8f0' : '#334155',
-                    borderColor: isDark ? '#475569' : '#cbd5e1'
-                  }}
+                  className="px-4 py-2 rounded-lg text-sm border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="name_asc">Name: A to Z</option>
                   <option value="name_desc">Name: Z to A</option>
@@ -302,7 +240,6 @@ const ProductsPage = () => {
                 loading={loading}
                 viewMode={viewMode}
                 userStatus={user?.status}
-                isDark={isDark}
               />
             </div>
           </div>
@@ -310,13 +247,13 @@ const ProductsPage = () => {
       </div>
 
       {/* Footer Section */}
-      <footer className="w-full bg-slate-800 dark:bg-slate-950 border-t border-slate-700">
+      <footer className="w-full bg-slate-800 dark:bg-slate-950 border-t border-slate-700 dark:border-slate-800">
         <div className="container mx-auto px-6 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* VitalMEDS Section */}
             <div>
               <h3 className="text-xl font-bold text-white mb-4">VitalMEDS</h3>
-              <p className="text-sm text-gray-300 leading-relaxed">
+              <p className="text-sm text-gray-300 dark:text-gray-400 leading-relaxed">
                 Trusted distributor for pharmacies & clinics. 20+ years industry
                 experience delivering quality medicines across India.
               </p>
@@ -325,7 +262,7 @@ const ProductsPage = () => {
             {/* Contact Section */}
             <div>
               <h4 className="text-lg font-semibold text-white mb-4">Contact</h4>
-              <div className="space-y-3 text-sm text-gray-300">
+              <div className="space-y-3 text-sm text-gray-300 dark:text-gray-400">
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-blue-400" />
                   <span>+91 98765 43210</span>
@@ -347,7 +284,7 @@ const ProductsPage = () => {
                 <Shield className="w-5 h-5 text-green-400" />
                 Compliance
               </h4>
-              <div className="space-y-2 text-sm text-gray-300">
+              <div className="space-y-2 text-sm text-gray-300 dark:text-gray-400">
                 <p className="flex items-start">
                   <span className="font-medium text-gray-200 mr-2">GSTIN:</span>
                   <span>29ABCDE1234F2Z5</span>
@@ -360,8 +297,8 @@ const ProductsPage = () => {
                   <span className="font-medium text-gray-200 mr-2">FSSAI:</span>
                   <span>12345678901234</span>
                 </p>
-                <div className="mt-6 pt-4 border-t border-slate-700">
-                  <p className="text-xs text-gray-400">
+                <div className="mt-6 pt-4 border-t border-slate-700 dark:border-slate-800">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
                     © 2025 VitalMEDS. All rights reserved.
                   </p>
                 </div>
