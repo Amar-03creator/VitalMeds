@@ -1,21 +1,19 @@
 // src/components/client/products/ProductCard.jsx
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import {
   ShoppingCart,
   Package,
-  Building,
   FlaskConical,
-  Plus,
-  Minus,
+  ChevronUp,
+  ChevronDown,
   Eye,
   Sparkles
 } from 'lucide-react';
 
-const ProductCard = ({ product, viewMode, userStatus }) => {
+const ProductCard = ({ product, viewMode, userStatus, onViewDetails }) => {
   const [quantity, setQuantity] = useState(1);
   const isApproved = userStatus === 'Approved';
   const isOutOfStock = product.stock === 0;
@@ -25,112 +23,122 @@ const ProductCard = ({ product, viewMode, userStatus }) => {
     setQuantity(newQty);
   };
 
+  const handleIncrement = () => {
+    setQuantity(prev => Math.min(99, prev + 1));
+  };
+
+  const handleDecrement = () => {
+    setQuantity(prev => Math.max(1, prev - 1));
+  };
+
+  // List View Layout
   if (viewMode === 'list') {
     return (
       <Card className="hover:shadow-lg transition-all bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
         <div className="flex flex-col md:flex-row">
-          {/* Product Image Placeholder */}
-          <div className="md:w-48 h-48 flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-            <Package className="w-16 h-16 text-slate-300 dark:text-slate-600" />
+          {/* Product Image */}
+          <div className="md:w-28 h-28 flex items-center justify-center bg-slate-50 dark:bg-slate-900 flex-shrink-0">
+            <Package className="w-10 h-10 text-slate-300 dark:text-slate-600" />
           </div>
 
-          {/* Product Info */}
-          <div className="flex-1 p-6">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
-                    {product.name}
-                  </h3>
-                  {product.isNew && (
-                    <Badge className="bg-gradient-to-r from-green-600 to-green-700 text-white border-0">
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      New
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-4 text-sm mb-2">
-                  <span className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
-                    <Building className="w-4 h-4" />
-                    {product.company}
-                  </span>
-                  <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-400">
-                    {product.category}
+          <div className="flex-1 p-2 flex flex-col justify-between">
+            {/* Product Info */}
+            <div>
+              <div className="flex items-baseline gap-1.5 flex-wrap mb-0.5">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">
+                  {product.company}
+                </span>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+                  {product.name}
+                </h3>
+                {product.isNew && (
+                  <Badge className="bg-gradient-to-r from-green-600 to-green-700 text-white border-0 text-[9px] px-1.5 py-0 h-4">
+                    <Sparkles className="w-2.5 h-2.5 mr-0.5" />
+                    New
                   </Badge>
-                </div>
-                <p className="text-sm flex items-center gap-1 mb-1 text-slate-600 dark:text-slate-400">
-                  <FlaskConical className="w-4 h-4" />
-                  {product.composition}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-500">
-                  SKU: {product.sku} • Pack: {product.packSize}
-                </p>
-              </div>
-
-              <div className="text-right">
-                <div className="text-2xl font-bold mb-1 text-blue-600 dark:text-blue-500">
-                  ₹{product.mrp}
-                </div>
-                <Badge
-                  variant={isOutOfStock ? 'destructive' : 'secondary'}
-                  className={isOutOfStock 
-                    ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-300 dark:border-red-700'
-                    : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-300 dark:border-green-700'
-                  }
-                >
-                  {isOutOfStock ? 'Out of Stock' : `${product.stock} in stock`}
+                )}
+                <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-400 text-[10px] px-1.5 py-0 h-4">
+                  {product.category}
                 </Badge>
               </div>
+
+              <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-1 flex items-start gap-1 mb-1">
+                <FlaskConical className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                {product.composition}
+              </p>
+
+              <p className="text-[10px] text-slate-500 dark:text-slate-500">
+                SKU: {product.sku}
+              </p>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3 mt-4">
-              <div className="flex items-center gap-2">
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={() => handleQuantityChange(quantity - 1)}
-                  disabled={!isApproved || isOutOfStock}
-                  className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                >
-                  <Minus className="w-4 h-4" />
-                </Button>
-                <Input
+            <div className="flex items-center justify-between gap-2 mt-1">
+              <div>
+                <p className="text-xl font-bold text-blue-600 dark:text-blue-500">
+                  ₹{product.mrp}
+                </p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-500">
+                  {product.packSize}
+                </p>
+              </div>
+
+              <Badge
+                variant={isOutOfStock ? 'destructive' : 'secondary'}
+                className={`text-[10px] px-2 py-0.5 ${isOutOfStock
+                  ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-300 dark:border-red-700'
+                  : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-300 dark:border-green-700'
+                  }`}
+              >
+                {isOutOfStock ? 'Out of Stock' : `${product.stock} in stock`}
+              </Badge>
+
+              <div className="flex items-center bg-slate-800 dark:bg-slate-800/70 border border-slate-700 rounded-md overflow-hidden">
+                <input
                   type="number"
                   value={quantity}
                   onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                  className="w-16 text-center bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
+                  className="w-10 py-1 text-xs text-center bg-transparent text-white dark:text-slate-300 border-none outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   disabled={!isApproved || isOutOfStock}
                 />
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={() => handleQuantityChange(quantity + 1)}
-                  disabled={!isApproved || isOutOfStock}
-                  className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                >
-                  <Plus className="w-4 h-4" />
-                </Button>
+                <div className="flex flex-col border-l border-slate-700">
+                  <button
+                    onClick={handleIncrement}
+                    disabled={!isApproved || isOutOfStock}
+                    className="px-1 py-0.5 hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronUp className="w-2.5 h-2.5 text-slate-400 hover:text-white" />
+                  </button>
+                  <button
+                    onClick={handleDecrement}
+                    disabled={!isApproved || isOutOfStock}
+                    className="px-1 py-0.5 hover:bg-slate-700 transition-colors border-t border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronDown className="w-2.5 h-2.5 text-slate-400 hover:text-white" />
+                  </button>
+                </div>
               </div>
 
               <Button
-                className={`flex-1 text-white ${
-                  isApproved && !isOutOfStock
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
-                    : 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed opacity-60'
-                }`}
+                size="sm"
+                className={`text-xs h-7 px-3 text-white ${isApproved && !isOutOfStock
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+                  : 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed opacity-60'
+                  }`}
                 disabled={!isApproved || isOutOfStock}
               >
-                <ShoppingCart className="w-4 h-4 mr-2" />
+                <ShoppingCart className="w-3 h-3 mr-1" />
                 Add to Cart
               </Button>
 
               <Button
+                size="sm"
                 variant="outline"
-                className="bg-transparent dark:bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="h-7 text-xs bg-transparent dark:bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 px-2"
+                onClick={() => onViewDetails(product)}
               >
-                <Eye className="w-4 h-4 mr-2" />
-                Details
+                <Eye className="w-3 h-3 mr-1" />
+                View in Detail
               </Button>
             </div>
           </div>
@@ -139,118 +147,121 @@ const ProductCard = ({ product, viewMode, userStatus }) => {
     );
   }
 
-  // Grid View Card
+  // Grid View Layout
   return (
-    <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col h-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+    <Card className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden flex flex-col bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
       {/* Product Image */}
-      <div className="h-48 flex items-center justify-center relative bg-slate-50 dark:bg-slate-900">
-        <Package className="w-20 h-20 text-slate-300 dark:text-slate-600" />
+      <div className="h-32 flex items-center justify-center relative bg-slate-50 dark:bg-slate-900">
+        <Package className="w-14 h-14 text-slate-300 dark:text-slate-600" />
         {product.isNew && (
-          <Badge className="absolute top-3 right-3 bg-gradient-to-r from-green-600 to-green-700 text-white border-0">
-            <Sparkles className="w-3 h-3 mr-1" />
+          <Badge className="absolute top-2 right-2 text-xs bg-gradient-to-r from-green-600 to-green-700 text-white border-0 px-1.5 py-0.5">
+            <Sparkles className="w-2.5 h-2.5 mr-0.5" />
             New
           </Badge>
         )}
         {isOutOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-50/80 dark:bg-slate-900/80">
-            <Badge variant="destructive" className="text-sm bg-red-600 dark:bg-red-600/90 text-white">
+            <Badge variant="destructive" className="text-xs bg-red-600 dark:bg-red-600/90 text-white">
               Out of Stock
             </Badge>
           </div>
         )}
       </div>
 
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg line-clamp-1 text-slate-900 dark:text-white">
-          {product.name}
-        </CardTitle>
-        <CardDescription className="flex items-center gap-2 flex-wrap">
-          <span className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
-            <Building className="w-3 h-3" />
-            {product.company}
-          </span>
-          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-400">
+      {/* Company Name - 2px left padding */}
+      <div className='flex justify-between'>
+        <span className="pl-2 pt-0.5 text-[12px] text-slate-500 dark:text-slate-400">
+          {product.company}
+        </span>
+        <span className="pr-2 text-[12px] text-slate-500 dark:text-slate-500">
+          {product.packSize}
+        </span>
+      </div>
+
+      <CardContent className="px-3 pt-0 pb-3 flex flex-col flex-1">
+        {/* Product Name and Category - 4px additional left (total pl-4 from card edge) */}
+        <div className="flex items-center justify-between gap-2 mb-1 pl-1">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
+            {product.name}
+          </h3>
+          <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-400 flex-shrink-0">
             {product.category}
           </Badge>
-        </CardDescription>
-      </CardHeader>
+        </div>
 
-      <CardContent className="flex-1 pb-3">
-        <p className="text-sm mb-2 line-clamp-2 flex items-start gap-1 text-slate-600 dark:text-slate-400">
-          <FlaskConical className="w-4 h-4 mt-0.5 flex-shrink-0" />
-          {product.composition}
-        </p>
-        <p className="text-xs mb-3 text-slate-500 dark:text-slate-500">
-          {product.packSize}
-        </p>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs mb-1 text-slate-600 dark:text-slate-400">
-              MRP
-            </p>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-500">
-              ₹{product.mrp}
-            </p>
+{/* Composition and MRP and View Details */}
+<div className='h-20 flex flex-col justify-center'>
+  {/* Composition - centered vertically */}
+  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 flex items-start gap-1">
+    <FlaskConical className="w-3 h-3 mt-0.5 flex-shrink-0" />
+    {product.composition}
+  </p>
+</div>
+
+{/* Price and View in Detail side by side - outside the h-20 div */}
+<div className="flex justify-between gap-2 mb-1">
+  {/* Left: Price */}
+  <div className="flex pb-1 items-baseline gap-1">
+    <span className="text-[10px] text-slate-600 dark:text-slate-400">MRP</span>
+    <span className="text-lg font-bold text-blue-600 dark:text-blue-500">
+      ₹{product.mrp}
+    </span>
+  </div>
+
+  {/* Right: View in Detail Button */}
+  <Button
+    size="sm"
+    variant="outline"
+    className="h-7 text-xs bg-transparent dark:bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 px-2 flex-shrink-0"
+    onClick={() => onViewDetails(product)}
+  >
+    <Eye className="w-3 h-3 mr-1" />
+    View in Detail
+  </Button>
+</div>
+
+
+        {/* Quantity and Add to Cart */}
+        <div className="flex items-center gap-2 mt-auto">
+          <div className="flex items-center bg-slate-800 dark:bg-slate-800/70 border border-slate-700 rounded-md overflow-hidden">
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+              className="w-12 py-1.5 text-xs text-center bg-transparent text-white dark:text-slate-300 border-none outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              disabled={!isApproved || isOutOfStock}
+            />
+            <div className="flex flex-col border-l border-slate-700">
+              <button
+                onClick={handleIncrement}
+                disabled={!isApproved || isOutOfStock}
+                className="px-1.5 py-0.5 hover:bg-slate-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronUp className="w-3 h-3 text-slate-400 hover:text-white" />
+              </button>
+              <button
+                onClick={handleDecrement}
+                disabled={!isApproved || isOutOfStock}
+                className="px-1.5 py-0.5 hover:bg-slate-700 transition-colors border-t border-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronDown className="w-3 h-3 text-slate-400 hover:text-white" />
+              </button>
+            </div>
           </div>
-          <Badge
-            variant={isOutOfStock ? 'destructive' : 'secondary'}
-            className={isOutOfStock 
-              ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-300 dark:border-red-700'
-              : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-300 dark:border-green-700'
-            }
-          >
-            {isOutOfStock ? 'Out of Stock' : `${product.stock} units`}
-          </Badge>
-        </div>
-      </CardContent>
 
-      <CardFooter className="flex-col gap-2 pt-0">
-        <div className="flex items-center gap-2 w-full">
           <Button
-            size="icon"
-            variant="outline"
-            onClick={() => handleQuantityChange(quantity - 1)}
-            disabled={!isApproved || isOutOfStock}
-            className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-          >
-            <Minus className="w-4 h-4" />
-          </Button>
-          <Input
-            type="number"
-            value={quantity}
-            onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-            className="text-center bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
-            disabled={!isApproved || isOutOfStock}
-          />
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={() => handleQuantityChange(quantity + 1)}
-            disabled={!isApproved || isOutOfStock}
-            className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-        </div>
-        <Button
-          className={`w-full text-white ${
-            isApproved && !isOutOfStock
+            size="sm"
+            className={`flex-1 text-xs h-8 text-white whitespace-nowrap ${isApproved && !isOutOfStock
               ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
               : 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed opacity-60'
-          }`}
-          disabled={!isApproved || isOutOfStock}
-        >
-          <ShoppingCart className="w-4 h-4 mr-2" />
-          Add to Cart
-        </Button>
-        <Button
-          variant="outline"
-          className="w-full bg-transparent dark:bg-transparent text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
-        >
-          <Eye className="w-4 h-4 mr-2" />
-          View Details
-        </Button>
-      </CardFooter>
+              }`}
+            disabled={!isApproved || isOutOfStock}
+          >
+            <ShoppingCart className="w-3 h-3 mr-1.5" />
+            Add to Cart
+          </Button>
+        </div>
+      </CardContent>
     </Card>
   );
 };

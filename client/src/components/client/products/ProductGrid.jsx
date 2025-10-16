@@ -1,21 +1,23 @@
-import React from 'react';
-import ProductCard from './ProductCard';
-import { Package } from 'lucide-react';
+import { Package } from "lucide-react";
+import ProductCard from "./ProductCard";
 
-const ProductGrid = ({ products, loading, viewMode, userStatus }) => {
+const ProductGrid = ({ products, loading, viewMode, userStatus, onViewDetails, isDrawerOpen }) => {
   if (loading) {
-    return (
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div
-            key={i}
-            className="h-80 rounded-xl animate-pulse bg-slate-200 dark:bg-slate-800"
-          />
-        ))}
-      </div>
-    );
-  }
-
+  return (
+    <div className={`grid gap-3 transition-all duration-300 ${
+      viewMode === 'list' 
+        ? 'grid-cols-1'
+        : isDrawerOpen ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'
+    }`}>
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div
+          key={i}
+          className={`rounded-xl animate-pulse bg-slate-200 dark:bg-slate-800 ${viewMode === 'list' ? 'h-32' : 'h-64'}`}
+        />
+      ))}
+    </div>
+  );
+}
   if (products.length === 0) {
     return (
       <div className="text-center py-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
@@ -31,8 +33,8 @@ const ProductGrid = ({ products, loading, viewMode, userStatus }) => {
   }
 
   const gridClass = viewMode === 'grid' 
-    ? 'grid md:grid-cols-2 lg:grid-cols-3 gap-6'
-    : 'space-y-4';
+    ? `grid gap-3 transition-all duration-300 ${isDrawerOpen ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'}`
+    : 'space-y-2';
 
   return (
     <div className={gridClass}>
@@ -42,6 +44,7 @@ const ProductGrid = ({ products, loading, viewMode, userStatus }) => {
           product={product}
           viewMode={viewMode}
           userStatus={userStatus}
+          onViewDetails={onViewDetails}
         />
       ))}
     </div>

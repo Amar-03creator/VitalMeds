@@ -18,6 +18,7 @@ import {
   Mail,
   MapPin,
 } from 'lucide-react';
+import ProductDetailDrawer from '@/components/client/products/ProductDetailDrawer';
 
 const ProductsPage = () => {
   const { user } = useAuth();
@@ -25,6 +26,8 @@ const ProductsPage = () => {
   const [showFilters, setShowFilters] = useState(true);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [filters, setFilters] = useState({
     search: '',
     company: [],
@@ -80,7 +83,15 @@ const ProductsPage = () => {
   const handleFilterChange = (newFilters) => {
     setFilters({ ...filters, ...newFilters });
   };
+  const handleViewDetails = (product) => {
+    setSelectedProduct(product);
+    setIsDrawerOpen(true);
+  };
 
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setTimeout(() => setSelectedProduct(null), 300);
+  };
   return (
     <>
       <div className="min-h-screen pb-8 bg-slate-50 dark:bg-slate-950">
@@ -100,8 +111,8 @@ const ProductsPage = () => {
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
                   size="icon"
-                  className={viewMode === 'grid' 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  className={viewMode === 'grid'
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
                     : 'bg-transparent text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }
                   onClick={() => setViewMode('grid')}
@@ -111,8 +122,8 @@ const ProductsPage = () => {
                 <Button
                   variant={viewMode === 'list' ? 'default' : 'outline'}
                   size="icon"
-                  className={viewMode === 'list' 
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  className={viewMode === 'list'
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
                     : 'bg-transparent text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }
                   onClick={() => setViewMode('list')}
@@ -122,8 +133,10 @@ const ProductsPage = () => {
               </div>
             </div>
 
+            {/* Alert - Only show when drawer is closed OR adjust width */}
             {user?.status !== 'Approved' && (
-              <Alert className="mb-4 bg-yellow-50 dark:bg-yellow-900/10 border-yellow-400 dark:border-yellow-600 text-yellow-900 dark:text-yellow-400">
+              <Alert className={`mb-4 bg-yellow-50 dark:bg-yellow-900/10 border-yellow-400 dark:border-yellow-600 text-yellow-900 dark:text-yellow-400 transition-all duration-300 ${isDrawerOpen ? 'lg:mr-[500px]' : ''
+                }`}>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   Your account is pending approval. You can browse products but cannot place orders until verified.
@@ -206,7 +219,8 @@ const ProductsPage = () => {
               </div>
             )}
 
-            <div className={showFilters ? 'lg:col-span-3' : 'lg:col-span-4'}>
+
+            <div className={`transition-all duration-300 ${showFilters ? 'lg:col-span-3' : 'lg:col-span-4'} ${isDrawerOpen ? 'lg:pr-0 lg:mr-0' : ''}`}>
               <div className="lg:hidden mb-4">
                 <Button
                   variant="outline"
@@ -240,11 +254,21 @@ const ProductsPage = () => {
                 loading={loading}
                 viewMode={viewMode}
                 userStatus={user?.status}
+                onViewDetails={handleViewDetails}
+                isDrawerOpen={isDrawerOpen}
               />
             </div>
           </div>
         </div>
+
       </div>
+      {/* Product Detail Drawer */}
+      <ProductDetailDrawer
+        product={selectedProduct}
+        isOpen={isDrawerOpen}
+        onClose={handleCloseDrawer}
+        userStatus={user?.status}
+      />
 
       {/* Footer Section */}
       <footer className="w-full bg-slate-800 dark:bg-slate-950 border-t border-slate-700 dark:border-slate-800">
