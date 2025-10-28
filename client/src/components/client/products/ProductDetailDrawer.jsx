@@ -91,10 +91,12 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, userStatus }) => {
   };
 
   return (
+    // In ProductDetailDrawer.jsx, update the main container div:
     <div
-      className={`fixed top-16 right-0 bottom-0 w-full lg:w-[450px] xl:w-[500px] bg-white dark:bg-slate-900 z-50 shadow-2xl transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'
+      className={`fixed top-16 right-0 bottom-0 w-full lg:w-[500px] bg-white dark:bg-slate-900 z-50 shadow-2xl transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
     >
+
       {/* Scrollable Container */}
       <div className="h-full overflow-y-auto scrollbar-hide pb-56">
         {/* Compact Header */}
@@ -183,8 +185,8 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, userStatus }) => {
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
                       className={`h-1.5 rounded-full transition-all ${index === currentImageIndex
-                          ? 'bg-blue-600 w-6'
-                          : 'bg-white/60 dark:bg-slate-600 w-1.5'
+                        ? 'bg-blue-600 w-6'
+                        : 'bg-white/60 dark:bg-slate-600 w-1.5'
                         }`}
                     />
                   ))}
@@ -348,7 +350,8 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, userStatus }) => {
         </div>
 
         {/* Fixed Footer - Order Controls */}
-        <div className="fixed bottom-0 right-0 w-full lg:w-[450px] xl:w-[500px] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 px-4 py-3 shadow-lg">
+        <div className="fixed bottom-0 right-0 w-full lg:w-[500px] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 px-4 py-3 shadow-lg">
+
           {/* MOQ and Quantity on same line */}
           <div className="flex items-center justify-between mb-3">
             <div>
@@ -401,8 +404,8 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, userStatus }) => {
             </Button>
             <Button
               className={`flex-1 text-xs h-9 text-white ${isApproved && !isOutOfStock
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
-                  : 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed opacity-60'
+                ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
+                : 'bg-slate-400 dark:bg-slate-700 cursor-not-allowed opacity-60'
                 }`}
               disabled={!isApproved || isOutOfStock}
             >

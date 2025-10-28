@@ -3,21 +3,24 @@ import ProductCard from "./ProductCard";
 
 const ProductGrid = ({ products, loading, viewMode, userStatus, onViewDetails, isDrawerOpen }) => {
   if (loading) {
-  return (
-    <div className={`grid gap-3 transition-all duration-300 ${
-      viewMode === 'list' 
-        ? 'grid-cols-1'
-        : isDrawerOpen ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'
-    }`}>
-      {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div
-          key={i}
-          className={`rounded-xl animate-pulse bg-slate-200 dark:bg-slate-800 ${viewMode === 'list' ? 'h-32' : 'h-64'}`}
-        />
-      ))}
-    </div>
-  );
-}
+    return (
+      <div className={`grid gap-3 transition-all duration-300 ${
+        viewMode === 'list' 
+          ? 'grid-cols-1'
+          : isDrawerOpen 
+            ? 'grid-cols-2'
+            : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+      }`}>
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div
+            key={i}
+            className={`rounded-xl animate-pulse bg-slate-200 dark:bg-slate-800 w-full max-w-[360px] ${viewMode === 'list' ? 'h-32' : 'h-64'}`}
+          />
+        ))}
+      </div>
+    );
+  }
+
   if (products.length === 0) {
     return (
       <div className="text-center py-20 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
@@ -33,7 +36,11 @@ const ProductGrid = ({ products, loading, viewMode, userStatus, onViewDetails, i
   }
 
   const gridClass = viewMode === 'grid' 
-    ? `grid gap-3 transition-all duration-300 ${isDrawerOpen ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'}`
+    ? `grid gap-3 transition-all duration-300 ${
+        isDrawerOpen 
+          ? 'grid-cols-2'
+          : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' // Single column on mobile
+      }`
     : 'space-y-2';
 
   return (

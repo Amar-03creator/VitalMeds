@@ -13,7 +13,7 @@ import RecentOrders from '@/components/client/dashboard/RecentOrders';
 import MonthlySummary from '@/components/client/dashboard/MonthlySummary';
 import QuickContact from '@/components/client/dashboard/QuickContact';
 import TrustBadges from '@/components/client/dashboard/TrustBadges';
-import FooterSection from '@/components/client/dashboard/FooterSection';
+import FooterSection from '@/components/common/FooterSection';
 
 const HomePage = () => {
   const { user } = useAuth();
