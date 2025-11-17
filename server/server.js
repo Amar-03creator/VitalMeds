@@ -1,15 +1,30 @@
-// server/server.js
 const express = require('express');
+const http = require('http');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-const app = express();
+// ← ADD THIS LINE
+const WebSocketHandler = require('./utils/websocketHandler');
 
-// Middleware
+const app = express();
+// ← CHANGE THESE 2 LINES
+const httpServer = http.createServer(app);
+const wsHandler = new WebSocketHandler(httpServer);
+
+// Middleware - CORS configuration
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,http://localhost:5174')
+  .split(',')
+  .map(url => url.trim());
+
+console.log('🔓 CORS Allowed Origins:', allowedOrigins);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
 }));
 
 app.use(express.json({ limit: '10mb' }));
@@ -28,18 +43,35 @@ mongoose.connect(process.env.MONGODB_URL)
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
-const productRoutes = require('./routes/productRoutes'); // Add this line
+const productRoutes = require('./routes/productRoutes');
+const adminAuthRoutes = require('./routes/adminAuthRoutes');
+const adminProductRoutes = require('./routes/adminProductRoutes');
 
 // Use routes
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes); // Add this line
+app.use('/api/products', productRoutes);
+app.use('/api/admin/auth', adminAuthRoutes);
+app.use('/api/admin/products', adminProductRoutes);
+
+// ← ADD THIS BLOCK
+// Make WebSocket handler available to routes
+app.use((req, res, next) => {
+  req.wsHandler = wsHandler;
+  next();
+});
+
+// WebSocket stats endpoint
+app.get('/api/ws-stats', (req, res) => {
+  res.json(wsHandler.getConnectionStats());
+});
 
 // Test route
 app.get('/api/test', (req, res) => {
   res.json({ 
     message: 'VitalMEDS API is running!', 
     timestamp: new Date().toISOString(),
-    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
+    websocket: 'Connected'
   });
 });
 
@@ -72,19 +104,24 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+// ← CHANGE THIS LINE from app.listen to httpServer.listen
+httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+  console.log(`🌐 WebSocket available at ws://localhost:${PORT}`);
+  console.log(`📱 Frontend URL(s): ${process.env.FRONTEND_URL || 'http://localhost:5173,http://localhost:5174'}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`\n📚 Available Routes:`);
-  console.log(`   - POST   /api/auth/register`);
-  console.log(`   - POST   /api/auth/login`);
-  console.log(`   - GET    /api/auth/profile`);
-  console.log(`   - GET    /api/auth/verify`);
-  console.log(`   - GET    /api/products`);
-  console.log(`   - GET    /api/products/:id`);
-  console.log(`   - GET    /api/products/filters/metadata`);
-  console.log(`   - POST   /api/products (admin)`);
-  console.log(`   - PUT    /api/products/:id (admin)`);
-  console.log(`   - DELETE /api/products/:id (admin)`);
+  console.log(`   ✓ POST   /api/auth/register`);
+  console.log(`   ✓ POST   /api/auth/login`);
+  console.log(`   ✓ GET    /api/auth/profile`);
+  console.log(`   ✓ GET    /api/auth/verify`);
+  console.log(`   ✓ GET    /api/products`);
+  console.log(`   ✓ GET    /api/products/:id`);
+  console.log(`   ✓ GET    /api/products/filters/metadata`);
+  console.log(`   ✓ POST   /api/products (admin)`);
+  console.log(`   ✓ PUT    /api/products/:id (admin)`);
+  console.log(`   ✓ DELETE /api/products/:id (admin)`);
+  console.log(`\n✅ Setup complete! You're ready to go.\n`);
 });
+
+module.exports = httpServer;

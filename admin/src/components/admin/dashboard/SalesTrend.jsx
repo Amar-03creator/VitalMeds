@@ -26,11 +26,11 @@ const SalesTrend = () => {
   const data = timeRange === 'weekly' ? weeklyData : monthlyData;
 
   return (
-    <div className="lg:col-span-2 bg-card rounded-2xl shadow-lg p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="lg:col-span-2 bg-card rounded-2xl shadow-lg p-4">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Sales Trend Analysis</h2>
-          <p className="text-sm text-muted-foreground mt-1">Current vs Previous Period</p>
+          <h2 className="text-lg font-bold text-foreground">Sales Trend Analysis</h2>
+          <p className="text-xs text-muted-foreground mt-1">Current vs Previous Period</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -55,48 +55,59 @@ const SalesTrend = () => {
           </button>
         </div>
       </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-          <XAxis 
-            dataKey="date" 
-            stroke="hsl(var(--muted-foreground))" 
-            style={{ fontSize: '12px' }} 
-          />
-          <YAxis 
-            stroke="hsl(var(--muted-foreground))" 
-            style={{ fontSize: '12px' }} 
-            tickFormatter={(value) => `₹${value / 1000}k`} 
-          />
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: 'hsl(var(--card))', 
-              border: '1px solid hsl(var(--border))', 
-              borderRadius: '12px', 
-              padding: '12px',
-              color: 'hsl(var(--foreground))'
-            }}
-            formatter={(value) => `₹${value.toLocaleString()}`}
-          />
-          <Legend />
-          <Line 
-            type="monotone" 
-            dataKey="current" 
-            stroke="hsl(var(--primary))" 
-            strokeWidth={3} 
-            name="Current Period" 
-            dot={{ fill: 'hsl(var(--primary))', r: 5 }} 
-          />
-          <Line 
-            type="monotone" 
-            dataKey="previous" 
-            stroke="hsl(var(--muted-foreground))" 
-            strokeWidth={2} 
-            strokeDasharray="5 5" 
-            name="Previous Period" 
-          />
-        </LineChart>
-      </ResponsiveContainer>
+
+      {/* Chart container - FIXED HEIGHTS */}
+      <div className="w-full h-80 md:h-96 lg:h-96">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart 
+            data={data}
+            margin={{ top: 0, right: 10, left: 0, bottom: 0 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis 
+              dataKey="date" 
+              stroke="hsl(var(--muted-foreground))" 
+              style={{ fontSize: '11px' }} 
+            />
+            <YAxis 
+              stroke="hsl(var(--muted-foreground))" 
+              style={{ fontSize: '11px' }} 
+              tickFormatter={(value) => `₹${value / 1000}k`} 
+              width={40}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'hsl(var(--card))', 
+                border: '1px solid hsl(var(--border))', 
+                borderRadius: '12px', 
+                padding: '8px',
+                color: 'hsl(var(--foreground))'
+              }}
+              formatter={(value) => `₹${value.toLocaleString()}`}
+            />
+            <Legend 
+              wrapperStyle={{ paddingTop: '8px', margin: 0 }}
+              height={20}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="current" 
+              stroke="hsl(var(--primary))" 
+              strokeWidth={2} 
+              name="Current Period" 
+              dot={{ fill: 'hsl(var(--primary))', r: 4 }} 
+            />
+            <Line 
+              type="monotone" 
+              dataKey="previous" 
+              stroke="hsl(var(--muted-foreground))" 
+              strokeWidth={2} 
+              strokeDasharray="5 5" 
+              name="Previous Period" 
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };

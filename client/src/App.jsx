@@ -11,6 +11,7 @@ import LoginPage from '@/pages/client/LoginPage';
 import RegisterPage from '@/pages/client/RegisterPage';
 import HomePage from '@/pages/HomePage';
 import ProductsPage from '@/pages/client/ProductsPage';
+import NotFoundPage from '@/pages/NotFoundPage';
 
 function App() {
   return (
@@ -32,16 +33,40 @@ function App() {
                 </ProtectedRoute>
               } />
               
-              {/* Add separate Products route */}
               <Route path="/products" element={
                 <ProtectedRoute>
                   <Navbar />
                   <ProductsPage />
                 </ProtectedRoute>
               } />
+
+              {/* Placeholder routes for under-construction pages */}
+              <Route path="/orders" element={
+                <ProtectedRoute>
+                  <NotFoundPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <NotFoundPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/messages" element={
+                <ProtectedRoute>
+                  <NotFoundPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/notifications" element={
+                <ProtectedRoute>
+                  <NotFoundPage />
+                </ProtectedRoute>
+              } />
               
-              {/* Catch all - redirect to landing */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              {/* Catch-all 404 Route - MUST BE LAST */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </div>
         </Router>
