@@ -61,6 +61,7 @@ export const ProductAdvancedFilters = ({
           </Select>
         </div>
 
+        {/* ✅ UPDATED: Sort By Options */}
         <div>
           <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 block">
             Sort By
@@ -73,12 +74,16 @@ export const ProductAdvancedFilters = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-              <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-              <SelectItem value="stock-low">Stock (Low to High)</SelectItem>
-              <SelectItem value="stock-high">Stock (High to Low)</SelectItem>
-              <SelectItem value="price-low">Price (Low to High)</SelectItem>
-              <SelectItem value="price-high">Price (High to Low)</SelectItem>
+              <SelectItem value="name-asc">Name (A-Z) 📝</SelectItem>
+              <SelectItem value="name-desc">Name (Z-A) 📝</SelectItem>
+              <SelectItem value="expiry-asc">Expiry (Earliest First) ⏰</SelectItem>
+              <SelectItem value="expiry-desc">Expiry (Latest First) ⏰</SelectItem>
+              <SelectItem value="batch-asc">Batch (A-Z) 🏷️</SelectItem>
+              <SelectItem value="batch-desc">Batch (Z-A) 🏷️</SelectItem>
+              <SelectItem value="stock-low">Stock (Low to High) 📦</SelectItem>
+              <SelectItem value="stock-high">Stock (High to Low) 📦</SelectItem>
+              <SelectItem value="mrp-low">MRP (Low to High) 💰</SelectItem>
+              <SelectItem value="mrp-high">MRP (High to Low) 💰</SelectItem>
             </SelectContent>
           </Select>
         </div>

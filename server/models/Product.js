@@ -34,13 +34,8 @@ const productSchema = new mongoose.Schema({
 
   expiryDate: {
     type: Date,
-    required: [true, 'Expiry date is required'],
-    validate: {
-      validator: function (v) {
-        return v > new Date();
-      },
-      message: 'Expiry date must be in the future'
-    }
+    required: [true, 'Expiry date is required']
+    // ✅ REMOVED: Future date validation (we can have expired products in inventory)
   },
 
   sku: {
@@ -53,15 +48,14 @@ const productSchema = new mongoose.Schema({
   },
 
   company: {
-  type: String,
-  required: [true, 'Company/Manufacturer is required'],
-  trim: true,
-  enum: {
-    values: ['Sun Pharma', 'Cipla', 'Dr. Reddy\'s', 'Lupin', 'Aurobindo', 'Torrent', 'Abbott', 'Novartis', 'GSK','Merck', 'Other'],
-    message: 'Invalid company name'
-  }
-},
-
+    type: String,
+    required: [true, 'Company/Manufacturer is required'],
+    trim: true,
+    enum: {
+      values: ['Sun Pharma', 'Cipla', 'Dr. Reddy\'s', 'Lupin', 'Aurobindo', 'Torrent', 'Abbott', 'Novartis', 'GSK', 'Merck', 'Other'],
+      message: 'Invalid company name'
+    }
+  },
 
   category: {
     type: String,
@@ -103,6 +97,12 @@ const productSchema = new mongoose.Schema({
     required: [true, 'MRP is required'],
     min: [0, 'MRP cannot be negative'],
     max: [100000, 'MRP seems unreasonably high']
+  },
+
+  sellingPrice: {
+    type: Number,
+    required: false,
+    min: [0, 'Selling price cannot be negative']
   },
 
   stock: {
@@ -191,32 +191,55 @@ productSchema.statics.searchProducts = function (searchQuery) {
     isActive: true
   });
 };
+
+// ✅ Auto-calculate selling price before saving
+productSchema.pre('save', function(next) {
+  if (this.mrp) {
+    this.sellingPrice = this.mrp * 0.8; // 20% discount from MRP
+  }
+  next();
+});
+
+// ✅ NEW: Also auto-calculate on update
+productSchema.pre('findOneAndUpdate', function(next) {
+  const update = this.getUpdate();
+  
+  // Handle different update formats
+  if (update.$set && update.$set.mrp) {
+    update.$set.sellingPrice = update.$set.mrp * 0.8;
+  } else if (update.mrp) {
+    update.sellingPrice = update.mrp * 0.8;
+  }
+  
+  next();
+});
+
 // Virtual for expiry status
-productSchema.virtual('expiryStatus').get(function() {
+productSchema.virtual('expiryStatus').get(function () {
   const now = new Date();
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-  
+
   if (this.expiryDate < now) return 'Expired';
   if (this.expiryDate < thirtyDaysFromNow) return 'Near Expiry';
   return 'Valid';
 });
 
 // Virtual for margin calculation
-productSchema.virtual('margin').get(function() {
+productSchema.virtual('margin').get(function () {
   if (this.purchaseRate === 0) return 0;
   return ((this.mrp - this.purchaseRate) / this.purchaseRate * 100).toFixed(2);
 });
 
 // Static method to find expired products
-productSchema.statics.findExpired = function() {
-  return this.find({ 
+productSchema.statics.findExpired = function () {
+  return this.find({
     expiryDate: { $lt: new Date() },
-    isActive: true 
+    isActive: true
   });
 };
 
 // Static method to find near-expiry products
-productSchema.statics.findNearExpiry = function() {
+productSchema.statics.findNearExpiry = function () {
   const thirtyDaysFromNow = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000);
   return this.find({
     expiryDate: {

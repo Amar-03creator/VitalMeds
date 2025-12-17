@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 // Get all products (admin view)
 exports.getAllProductsAdmin = async (req, res) => {
   try {
-    const { search, category, company } = req.query;
+    const { search, category, company, sortBy } = req.query;
 
     let query = {};
 
@@ -25,9 +25,58 @@ exports.getAllProductsAdmin = async (req, res) => {
       query.company = company;
     }
 
-    const products = await Product.find(query).sort({ createdAt: -1 });
+    // ✅ UPDATED: Sort logic - Always prioritize expiry date
+    let sortQuery = {};
 
-    console.log(`✅ Fetched ${products.length} products`);
+    switch (sortBy) {
+      case 'name-asc':
+        // Same medicine name together, earliest expiry first
+        sortQuery = { productName: 1, expiryDate: 1 };
+        break;
+      case 'name-desc':
+        // Same medicine name together (Z-A), earliest expiry first
+        sortQuery = { productName: -1, expiryDate: 1 };
+        break;
+      case 'expiry-asc':
+        // Earliest expiry first (across all products)
+        sortQuery = { expiryDate: 1, productName: 1 };
+        break;
+      case 'expiry-desc':
+        // Latest expiry first
+        sortQuery = { expiryDate: -1, productName: 1 };
+        break;
+      case 'stock-low':
+        // Lowest stock first, then earliest expiry
+        sortQuery = { stock: 1, expiryDate: 1 };
+        break;
+      case 'stock-high':
+        // Highest stock first, then earliest expiry
+        sortQuery = { stock: -1, expiryDate: 1 };
+        break;
+      case 'mrp-low':
+        // Lowest MRP first, then earliest expiry
+        sortQuery = { mrp: 1, expiryDate: 1 };
+        break;
+      case 'mrp-high':
+        // Highest MRP first, then earliest expiry
+        sortQuery = { mrp: -1, expiryDate: 1 };
+        break;
+      case 'batch-asc':
+        // Batch number A-Z, then earliest expiry
+        sortQuery = { batchNumber: 1, expiryDate: 1 };
+        break;
+      case 'batch-desc':
+        // Batch number Z-A, then earliest expiry
+        sortQuery = { batchNumber: -1, expiryDate: 1 };
+        break;
+      default:
+        // Default: Group by product name, show earliest expiry first
+        sortQuery = { productName: 1, expiryDate: 1 };
+    }
+
+    const products = await Product.find(query).sort(sortQuery);
+
+    console.log(`✅ Fetched ${products.length} products (Sorted by: ${sortBy || 'default'})`);
 
     // Return array directly
     res.status(200).json(products);

@@ -42,7 +42,7 @@ const AllProductsPage = () => {
       if (searchQuery) params.append('search', searchQuery);
       if (selectedCategory !== 'all') params.append('category', selectedCategory);
       if (selectedCompany !== 'all') params.append('company', selectedCompany);
-
+      if (sortBy) params.append('sortBy', sortBy);
       const response = await api.get(`/admin/products?${params.toString()}`);
 
       if (response.data && response.data.length > 0) {
@@ -60,7 +60,7 @@ const AllProductsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, selectedCategory, selectedCompany]);
+  }, [searchQuery, selectedCategory, selectedCompany, sortBy]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -76,8 +76,9 @@ const AllProductsPage = () => {
 
   // Filter and sort logic
   const getFilteredAndSortedProducts = () => {
-    let filtered = [...products];
+    let filtered = [...products];  // Products already sorted by backend
 
+    // Only client-side filters (not sent to backend)
     if (selectedSku.trim()) {
       filtered = filtered.filter(p => p.sku && p.sku.toLowerCase().includes(selectedSku.toLowerCase()));
     }
@@ -88,26 +89,7 @@ const AllProductsPage = () => {
       filtered = filtered.filter(p => p.stock <= parseInt(maxStock));
     }
 
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'productName-asc':
-          return (a.productName || '').localeCompare(b.productName || '');
-        case 'productName-desc':
-          return (b.productName || '').localeCompare(a.productName || '');
-        case 'stock-low':
-          return a.stock - b.stock;
-        case 'stock-high':
-          return b.stock - a.stock;
-        case 'price-low':
-          return a.mrp - b.mrp;
-        case 'price-high':
-          return b.mrp - a.mrp;
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
+    return filtered;  // No sorting needed - backend already sorted
   };
 
   const filteredProducts = getFilteredAndSortedProducts();
@@ -158,7 +140,7 @@ const AllProductsPage = () => {
             </thead>
             <tbody>
               ${filteredProducts.map(p =>
-                `<tr>
+      `<tr>
                   <td>${p.productName || 'N/A'}</td>
                   <td>${p.batchNumber || 'N/A'}</td>
                   <td>${new Date(p.expiryDate).toLocaleDateString('en-IN')}</td>
@@ -167,7 +149,7 @@ const AllProductsPage = () => {
                   <td>₹${(p.mrp || 0).toFixed(2)}</td>
                   <td>${p.stock === 0 ? 'Out of Stock' : p.stock <= 50 ? 'Low Stock' : 'In Stock'}</td>
                 </tr>`
-              ).join('')}
+    ).join('')}
             </tbody>
           </table>
         </body>
@@ -269,8 +251,7 @@ const AllProductsPage = () => {
           loading={loading}
           products={paginatedProducts}
           onView={setSelectedProduct}
-          onEdit={() => {}}
-          onDelete={() => {}}
+          onEdit={() => { }}
         />
 
         {!loading && filteredProducts.length > 0 && (

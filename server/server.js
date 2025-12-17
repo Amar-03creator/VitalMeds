@@ -46,12 +46,16 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const adminAuthRoutes = require('./routes/adminAuthRoutes');
 const adminProductRoutes = require('./routes/adminProductRoutes');
+const adminCustomerRoutes = require('./routes/adminCustomerRoutes');
+
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin/products', adminProductRoutes);
+app.use('/api/admin/customers', adminCustomerRoutes);
+
 
 // ← ADD THIS BLOCK
 // Make WebSocket handler available to routes
@@ -67,8 +71,8 @@ app.get('/api/ws-stats', (req, res) => {
 
 // Test route
 app.get('/api/test', (req, res) => {
-  res.json({ 
-    message: 'VitalMEDS API is running!', 
+  res.json({
+    message: 'VitalMEDS API is running!',
     timestamp: new Date().toISOString(),
     database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
     websocket: 'Connected'
@@ -87,7 +91,7 @@ app.get('/health', (req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('❌ Global error:', err);
-  
+
   res.status(err.statusCode || 500).json({
     success: false,
     message: err.message || 'Internal server error',
@@ -122,6 +126,12 @@ httpServer.listen(PORT, () => {
   console.log(`   ✓ PUT    /api/products/:id (admin)`);
   console.log(`   ✓ DELETE /api/products/:id (admin)`);
   console.log(`\n✅ Setup complete! You're ready to go.\n`);
+  console.log(`   ✓ GET    /api/admin/customers`);
+  console.log(`   ✓ POST   /api/admin/customers (admin)`);
+  console.log(`   ✓ GET    /api/admin/customers/:id (admin)`);
+  console.log(`   ✓ PUT    /api/admin/customers/:id (admin)`);
+  console.log(`   ✓ DELETE /api/admin/customers/:id (admin)`);
+
 });
 
 module.exports = httpServer;

@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
 
 // Middleware to protect admin routes
-exports.protectAdmin = async (req, res, next) => {
+exports.protect = async (req, res, next) => {
   try {
     let token;
 

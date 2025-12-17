@@ -7,6 +7,9 @@ import Sidebar from '@/components/common/Sidebar';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AllProductsPage from '@/pages/admin/AllProductsPage';
 import './App.css';
+import AllCustomersPage from '@/pages/admin/AllCustomersPage';
+import CustomerDetailPage from '@/pages/admin/CustomerDetailPage';
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -84,7 +87,10 @@ function App() {
                         <Route path="dashboard" element={<AdminDashboard />} />
                         <Route path="products" element={<AllProductsPage />} />
                         <Route path="orders" element={<div className="p-8"><h1 className="text-2xl font-bold">All Orders</h1></div>} />
-                        <Route path="customers" element={<div className="p-8"><h1 className="text-2xl font-bold">All Customers</h1></div>} />
+                        <Route path="customers" element={<AllCustomersPage />} />
+                        <Route path="customers" element={<AllCustomersPage />} />
+                        <Route path="customers/:id" element={<CustomerDetailPage />} />
+
                         <Route path="inquiries" element={<div className="p-8"><h1 className="text-2xl font-bold">Inquiries</h1></div>} />
                         <Route path="billing" element={<div className="p-8"><h1 className="text-2xl font-bold">Billing</h1></div>} />
                         <Route path="reports" element={<div className="p-8"><h1 className="text-2xl font-bold">Analytics / Reports</h1></div>} />

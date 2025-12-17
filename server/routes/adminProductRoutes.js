@@ -8,10 +8,10 @@ const {
   updateProductAdmin,
   deleteProductAdmin
 } = require('../controllers/adminProductController');
-const { protectAdmin } = require('../middleware/adminAuth');  // ← Use admin middleware
+const { protect } = require('../middleware/adminAuth');  // ✅ CHANGED
 
 // All admin product routes require admin authentication
-router.use(protectAdmin); // Apply admin middleware to all routes below
+router.use(protect); // ✅ CHANGED
 
 router.get('/', getAllProductsAdmin);              // View all products
 router.get('/:id', getProductByIdAdmin);           // View product details
