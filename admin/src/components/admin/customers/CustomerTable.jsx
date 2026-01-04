@@ -14,13 +14,65 @@ export const CustomerTable = ({ customers, onRefresh }) => {
     }).format(amount);
   };
 
-  const getDaysSinceLastOrder = (lastOrderDate) => {
-    if (!lastOrderDate) return 'Never';
-    const diff = Date.now() - new Date(lastOrderDate).getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  // ✅ NEW: Calculate Outstanding Days based on your logic
+  const calculateOutstandingDays = (customer) => {
+    // If no outstanding amount, return 0
+    if (!customer.outstandingAmount || customer.outstandingAmount === 0) {
+      return 0;
+    }
+
+    // If no bills data available, return null (will show "N/A")
+    if (!customer.bills || customer.bills.length === 0) {
+      return null;
+    }
+
+    // Sort bills from latest to oldest
+    const sortedBills = [...customer.bills].sort((a, b) => 
+      new Date(b.billDate) - new Date(a.billDate)
+    );
+
+    let cumulativeAmount = 0;
+    let referenceDate = null;
+
+    // Start from most recent bill and work backwards
+    for (const bill of sortedBills) {
+      cumulativeAmount += bill.amount;
+      
+      // When cumulative meets or exceeds outstanding amount, stop
+      if (cumulativeAmount >= customer.outstandingAmount) {
+        referenceDate = new Date(bill.billDate);
+        break;
+      }
+    }
+
+    // If we found a reference date, calculate days difference
+    if (referenceDate) {
+      const today = new Date();
+      const diffTime = today - referenceDate;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    }
+
+    return null;
+  };
+
+  const formatOutstandingDays = (customer) => {
+    const days = calculateOutstandingDays(customer);
+    
+    if (days === null) return 'N/A';
     if (days === 0) return 'Today';
-    if (days === 1) return 'Yesterday';
-    return `${days} days ago`;
+    if (days === 1) return '1 day';
+    
+    return `${days} days`;
+  };
+
+  const getOutstandingDaysColor = (customer) => {
+    const days = calculateOutstandingDays(customer);
+    
+    if (days === null || days === 0) return 'text-gray-400';
+    if (days <= 7) return 'text-yellow-600 dark:text-yellow-400';
+    if (days <= 30) return 'text-orange-600 dark:text-orange-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const handleViewCustomer = (customerId) => {
@@ -44,16 +96,14 @@ export const CustomerTable = ({ customers, onRefresh }) => {
                   Phone & Email
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  Total Orders
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   Revenue This Month
                 </th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   Outstanding
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
-                  Last Order
+                {/* ✅ REPLACED: Last Order → Outstanding Days */}
+                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                  Outstanding Days
                 </th>
                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                   View
@@ -96,16 +146,6 @@ export const CustomerTable = ({ customers, onRefresh }) => {
                     </div>
                   </td>
 
-                  {/* Total Orders */}
-                  <td className="px-4 py-4 text-right">
-                    <div>
-                      <p className="text-lg font-bold text-foreground">{customer.totalOrders}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {customer.ordersThisMonth} this month
-                      </p>
-                    </div>
-                  </td>
-
                   {/* Revenue This Month */}
                   <td className="px-4 py-4 text-right">
                     <p className="font-semibold text-green-600 dark:text-green-400">
@@ -131,9 +171,18 @@ export const CustomerTable = ({ customers, onRefresh }) => {
                     </div>
                   </td>
 
-                  {/* Last Order */}
-                  <td className="px-4 py-4 text-sm">
-                    {getDaysSinceLastOrder(customer.lastOrderDate)}
+                  {/* ✅ NEW: Outstanding Days */}
+                  <td className="px-4 py-4 text-center">
+                    <div>
+                      <p className={`text-lg font-bold ${getOutstandingDaysColor(customer)}`}>
+                        {formatOutstandingDays(customer)}
+                      </p>
+                      {customer.outstandingAmount > 0 && calculateOutstandingDays(customer) > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          overdue
+                        </p>
+                      )}
+                    </div>
                   </td>
 
                   {/* View Button */}

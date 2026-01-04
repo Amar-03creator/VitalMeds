@@ -193,6 +193,32 @@ const customerSchema = new mongoose.Schema({
   updatedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin'
+  },
+
+  bills: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Bill'
+  }],
+
+  tier: {
+    type: String,
+    enum: ['Diamond', 'Platinum', 'Gold', 'Silver'],
+    default: 'Silver'
+  },
+
+  concernLevel: {
+    type: String,
+    enum: ['None', 'Low', 'Medium', 'High'],
+    default: 'None'
+  },
+
+  concernReasons: [{
+    type: String
+  }],
+ 
+  tierLastCalculated: {
+    type: Date,
+    default: null
   }
 
 }, {

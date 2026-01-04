@@ -1,4 +1,5 @@
 const Customer = require('../models/Customer');
+const Bill = require('../models/Bill');
 
 // @desc    Get all customers with filters, search, and sort
 // @route   GET /api/admin/customers
@@ -83,8 +84,14 @@ exports.getCustomers = async (req, res) => {
     // Pagination
     const skip = (page - 1) * limit;
 
-    // Execute query
+    // ✅ CHANGED: Added .populate() to fetch bills
     const customers = await Customer.find(query)
+      .populate({
+        path: 'bills',
+        match: { isPaid: false }, // Only unpaid bills needed for outstanding calculation
+        select: 'billDate amount billNumber',
+        options: { sort: { billDate: -1 } } // Latest bills first
+      })
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit))
@@ -143,12 +150,16 @@ exports.getCustomers = async (req, res) => {
   }
 };
 
-// @desc    Get single customer by ID
-// @route   GET /api/admin/customers/:id
-// @access  Private (Admin only)
+// ✅ CHANGED: Also update getCustomerById to include bills
 exports.getCustomerById = async (req, res) => {
   try {
-    const customer = await Customer.findById(req.params.id).select('-password');
+    const customer = await Customer.findById(req.params.id)
+      .populate({
+        path: 'bills',
+        select: 'billDate amount billNumber isPaid paidDate',
+        options: { sort: { billDate: -1 } }
+      })
+      .select('-password');
 
     if (!customer) {
       return res.status(404).json({
@@ -171,9 +182,7 @@ exports.getCustomerById = async (req, res) => {
   }
 };
 
-// @desc    Create new customer
-// @route   POST /api/admin/customers
-// @access  Private (Admin only)
+// Rest of the functions remain the same
 exports.createCustomer = async (req, res) => {
   try {
     const customer = await Customer.create({
@@ -204,9 +213,6 @@ exports.createCustomer = async (req, res) => {
   }
 };
 
-// @desc    Update customer
-// @route   PUT /api/admin/customers/:id
-// @access  Private (Admin only)
 exports.updateCustomer = async (req, res) => {
   try {
     const customer = await Customer.findByIdAndUpdate(
@@ -243,9 +249,6 @@ exports.updateCustomer = async (req, res) => {
   }
 };
 
-// @desc    Delete customer
-// @route   DELETE /api/admin/customers/:id
-// @access  Private (Admin only)
 exports.deleteCustomer = async (req, res) => {
   try {
     const customer = await Customer.findByIdAndDelete(req.params.id);
