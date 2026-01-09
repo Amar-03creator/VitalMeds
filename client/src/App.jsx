@@ -12,6 +12,10 @@ import RegisterPage from '@/pages/client/RegisterPage';
 import HomePage from '@/pages/HomePage';
 import ProductsPage from '@/pages/client/ProductsPage';
 import NotFoundPage from '@/pages/NotFoundPage';
+import InquiryPage from '@/pages/client/InquiryPage';
+import OrderingGuidePage from '@/pages/client/OrderingGuidePage';
+import CreditTermsPage from '@/pages/client/CreditTermsPage';
+
 
 function App() {
   return (
@@ -24,7 +28,7 @@ function App() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-              
+
               {/* Protected Routes */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
@@ -32,7 +36,7 @@ function App() {
                   <HomePage />
                 </ProtectedRoute>
               } />
-              
+
               <Route path="/products" element={
                 <ProtectedRoute>
                   <Navbar />
@@ -46,6 +50,28 @@ function App() {
                   <NotFoundPage />
                 </ProtectedRoute>
               } />
+
+              <Route path="/inquiry" element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <InquiryPage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/orderingGuide" element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <OrderingGuidePage />
+                </ProtectedRoute>
+              } />
+
+              <Route path="/creditTerms" element={
+                <ProtectedRoute>
+                  <Navbar />
+                  <CreditTermsPage />
+                </ProtectedRoute>
+              } />
+
 
               <Route path="/profile" element={
                 <ProtectedRoute>
@@ -64,7 +90,7 @@ function App() {
                   <NotFoundPage />
                 </ProtectedRoute>
               } />
-              
+
               {/* Catch-all 404 Route - MUST BE LAST */}
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

@@ -9,21 +9,28 @@ const {
   updateProduct,
   deleteProduct
 } = require('../controllers/productController');
+
+const {
+  getBatchesByProduct,
+  createBatch,
+  updateBatch,
+  deleteBatch
+} = require('../controllers/productBatchController');
+
 const { protect } = require('../middleware/auth');
 
-// Public/Protected routes (for clients)
+// Product routes
 router.get('/', protect, getProducts);
 router.get('/filters/metadata', protect, getFiltersMetadata);
 router.get('/:id', protect, getProductById);
-
-// Admin-only routes (add restrictTo middleware when you implement admin auth)
-// router.post('/', protect, restrictTo('admin'), createProduct);
-// router.put('/:id', protect, restrictTo('admin'), updateProduct);
-// router.delete('/:id', protect, restrictTo('admin'), deleteProduct);
-
-// For now, keep these protected by auth only
 router.post('/', protect, createProduct);
 router.put('/:id', protect, updateProduct);
 router.delete('/:id', protect, deleteProduct);
+
+// Batch routes
+router.get('/:productId/batches', protect, getBatchesByProduct);
+router.post('/:productId/batches', protect, createBatch);
+router.put('/batches/:batchId', protect, updateBatch);
+router.delete('/batches/:batchId', protect, deleteBatch);
 
 module.exports = router;

@@ -5,18 +5,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Filter, ChevronUp, ChevronDown } from 'lucide-react';
 
-const ProductFilters = ({ filters, onFilterChange }) => {
-  const companies = ['Company A', 'Company B', 'Company C', 'Company D'];
-  const categories = [
-    'Pain Relief',
-    'Antibiotics',
-    'Antihistamine',
-    'Gastro',
-    'Diabetes',
-    'Cardiovascular',
-    'Respiratory',
-    'Dermatology'
-  ];
+// ✅ CHANGE: Add filterOptions prop
+const ProductFilters = ({ filters, onFilterChange, filterOptions }) => {
+  // ❌ REMOVE: Hardcoded arrays
+  // const companies = ['Company A', 'Company B', 'Company C', 'Company D'];
+  // const categories = [...];
+  
+  // ✅ ADD: Use dynamic data from API (with fallback to empty array)
+  const companies = filterOptions?.companies || [];
+  const categories = filterOptions?.categories || [];
+  const maxPrice = filterOptions?.priceRange?.max || 1000;
 
   const handleCompanyToggle = (company) => {
     const newCompanies = filters.company.includes(company)
@@ -43,7 +41,7 @@ const ProductFilters = ({ filters, onFilterChange }) => {
   };
 
   const handleMaxPriceIncrement = () => {
-    const newMax = Math.min(filters.priceRange[1] + 50, 1000);
+    const newMax = Math.min(filters.priceRange[1] + 50, maxPrice); // ✅ Use dynamic maxPrice
     onFilterChange({ priceRange: [filters.priceRange[0], newMax] });
   };
 
@@ -91,7 +89,7 @@ const ProductFilters = ({ filters, onFilterChange }) => {
             <Slider
               value={filters.priceRange}
               onValueChange={(value) => onFilterChange({ priceRange: value })}
-              max={1000}
+              max={maxPrice}
               step={50}
               className="mb-4"
             />
@@ -148,10 +146,10 @@ const ProductFilters = ({ filters, onFilterChange }) => {
                   <input
                     type="number"
                     min={filters.priceRange[0] + 50}
-                    max={1000}
+                    max={maxPrice} 
                     value={filters.priceRange[1]}
                     onChange={(e) => {
-                      const newMax = parseInt(e.target.value) || 1000;
+                      const newMax = parseInt(e.target.value) || maxPrice;
                       if (newMax > filters.priceRange[0]) {
                         onFilterChange({ priceRange: [filters.priceRange[0], newMax] });
                       }
@@ -183,25 +181,32 @@ const ProductFilters = ({ filters, onFilterChange }) => {
           <h3 className="font-semibold mb-3 text-sm text-slate-800 dark:text-slate-200">
             Company
           </h3>
-          <div className="space-y-1">
-            {companies.map((company) => (
-              <label
-                key={company}
-                htmlFor={company}
-                className="flex items-center p-2 -m-2 rounded-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
-              >
-                <Checkbox
-                  id={company}
-                  checked={filters.company.includes(company)}
-                  onCheckedChange={() => handleCompanyToggle(company)}
-                  className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                />
-                <span className="ml-3 text-sm text-slate-700 dark:text-slate-300">
-                  {company}
-                </span>
-              </label>
-            ))}
-          </div>
+          {/* ✅ ADD: Loading state */}
+          {companies.length === 0 ? (
+            <p className="text-sm text-slate-500 dark:text-slate-400 py-2">
+              Loading companies...
+            </p>
+          ) : (
+            <div className="space-y-1">
+              {companies.map((company) => (
+                <label
+                  key={company}
+                  htmlFor={`company-${company}`}
+                  className="flex items-center p-2 -m-2 rounded-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
+                >
+                  <Checkbox
+                    id={`company-${company}`}
+                    checked={filters.company.includes(company)}
+                    onCheckedChange={() => handleCompanyToggle(company)}
+                    className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  />
+                  <span className="ml-3 text-sm text-slate-700 dark:text-slate-300">
+                    {company}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Category Filter */}
@@ -209,25 +214,32 @@ const ProductFilters = ({ filters, onFilterChange }) => {
           <h3 className="font-semibold mb-3 text-sm text-slate-800 dark:text-slate-200">
             Category
           </h3>
-          <div className="space-y-1 max-h-60 overflow-y-auto pr-2 scrollbar-hide">
-            {categories.map((category) => (
-              <label
-                key={category}
-                htmlFor={category}
-                className="flex items-center p-2 -m-2 rounded-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
-              >
-                <Checkbox
-                  id={category}
-                  checked={filters.category.includes(category)}
-                  onCheckedChange={() => handleCategoryToggle(category)}
-                  className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                />
-                <span className="ml-3 text-sm text-slate-700 dark:text-slate-300">
-                  {category}
-                </span>
-              </label>
-            ))}
-          </div>
+          {/* ✅ ADD: Loading state */}
+          {categories.length === 0 ? (
+            <p className="text-sm text-slate-500 dark:text-slate-400 py-2">
+              Loading categories...
+            </p>
+          ) : (
+            <div className="space-y-1 max-h-60 overflow-y-auto pr-2 scrollbar-hide">
+              {categories.map((category) => (
+                <label
+                  key={category}
+                  htmlFor={`category-${category}`} 
+                  className="flex items-center p-2 -m-2 rounded-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
+                >
+                  <Checkbox
+                    id={`category-${category}`}
+                    checked={filters.category.includes(category)}
+                    onCheckedChange={() => handleCategoryToggle(category)}
+                    className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                  />
+                  <span className="ml-3 text-sm text-slate-700 dark:text-slate-300">
+                    {category}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

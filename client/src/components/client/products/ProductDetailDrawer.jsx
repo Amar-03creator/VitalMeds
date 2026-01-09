@@ -27,7 +27,7 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, userStatus }) => {
   const [quantity, setQuantity] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const isApproved = userStatus === 'Approved';
-  const isOutOfStock = product?.stock === 0;
+  const isOutOfStock = (product?.totalStock || 0) === 0;
 
   // Reset quantity when product changes
   useEffect(() => {
@@ -196,31 +196,29 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, userStatus }) => {
           </div>
 
           {/* Product Title & Info */}
-          <div>
-            <div className="flex items-start justify-between gap-3 mb-2">
-              <div className="flex-1">
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
-                  {product.name}
-                </h1>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                  SKU: <span className="font-medium">{product.sku}</span>
-                </p>
-              </div>
-              <div className="text-right">
-                <Badge
-                  variant={isOutOfStock ? 'destructive' : 'secondary'}
-                  className={`mb-1 ${isOutOfStock
-                    ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-300 dark:border-red-700'
-                    : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-300 dark:border-green-700'
-                    }`}
-                >
-                  {isOutOfStock ? 'Out of Stock' : `${product.stock} in stock`}
-                </Badge>
-                <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-400 text-xs">
-                  <Building2 className="w-3 h-3 mr-1" />
-                  {product.company}
-                </Badge>
-              </div>
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <div className="flex-1">
+              {/* ✅ FIX: Use productName */}
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
+                {product.productName}
+              </h1>
+              {/* ✅ REMOVED SKU line */}
+            </div>
+            <div className="text-right">
+              <Badge
+                variant={isOutOfStock ? 'destructive' : 'secondary'}
+                className={`mb-1 ${isOutOfStock
+                  ? 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-400 border-red-300 dark:border-red-700'
+                  : 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-400 border-green-300 dark:border-green-700'
+                  }`}
+              >
+                {/* ✅ FIX: Use totalStock */}
+                {isOutOfStock ? 'Out of Stock' : `${product.totalStock} in stock`}
+              </Badge>
+              <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950 border-blue-300 dark:border-blue-700 text-blue-800 dark:text-blue-400 text-xs">
+                <Building2 className="w-3 h-3 mr-1" />
+                {product.company}
+              </Badge>
             </div>
           </div>
 
@@ -232,8 +230,9 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, userStatus }) => {
                   MRP (Maximum Retail Price)
                 </p>
                 <div className="flex items-baseline gap-2">
+                  {/* ✅ FIX: Use standardMRP */}
                   <span className="text-2xl font-bold text-blue-600 dark:text-blue-500">
-                    ₹{product.mrp}
+                    ₹{product.standardMRP}
                   </span>
                   <span className="text-xs text-slate-600 dark:text-slate-400">
                     per {product.packSize}
@@ -359,7 +358,8 @@ const ProductDetailDrawer = ({ product, isOpen, onClose, userStatus }) => {
                 Minimum Order Quantity: <span className="font-semibold text-slate-900 dark:text-white">{product.moq || 1} units</span>
               </p>
               <p className="text-xs text-slate-600 dark:text-slate-400">
-                Total: <span className="font-bold text-lg text-slate-900 dark:text-white">₹{(product.mrp * quantity).toLocaleString()}</span>
+                {/* ✅ FIX: Use standardMRP */}
+                Total: <span className="font-bold text-lg text-slate-900 dark:text-white">₹{(product.standardMRP * quantity).toLocaleString()}</span>
               </p>
             </div>
 

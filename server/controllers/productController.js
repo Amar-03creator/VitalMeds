@@ -1,5 +1,6 @@
 // server/controllers/productController.js
 const Product = require('../models/Product');
+const ProductBatch = require('../models/ProductBatch');
 
 // @desc    Get all products with filtering, sorting, and pagination
 // @route   GET /api/products
@@ -15,18 +16,17 @@ exports.getProducts = async (req, res) => {
       minPrice = 0,
       maxPrice = 100000,
       inStock = '',
-      sortBy = 'name',
+      sortBy = 'productName',
       sortOrder = 'asc'
     } = req.query;
 
     // Build filter query
     const filter = { isActive: true };
 
-    // Search filter (text search across name, sku, composition, company)
+    // Search filter (removed sku, now searches: productName, composition, company)
     if (search) {
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { sku: { $regex: search, $options: 'i' } },
+        { productName: { $regex: search, $options: 'i' } },
         { composition: { $regex: search, $options: 'i' } },
         { company: { $regex: search, $options: 'i' } }
       ];
@@ -44,22 +44,17 @@ exports.getProducts = async (req, res) => {
       filter.category = { $in: categories };
     }
 
-    // Price range filter
+    // Price range filter (now uses standardMRP)
     if (minPrice || maxPrice) {
-      filter.mrp = {
+      filter.standardMRP = {
         $gte: parseFloat(minPrice),
         $lte: parseFloat(maxPrice)
       };
     }
 
-    // Stock filter
-    if (inStock === 'true') {
-      filter.stock = { $gt: 0 };
-    }
-
     // Build sort object
     const sortOptions = {};
-    const sortField = sortBy || 'name';
+    const sortField = sortBy || 'productName';
     const sortDirection = sortOrder === 'desc' ? -1 : 1;
     sortOptions[sortField] = sortDirection;
 
@@ -68,15 +63,50 @@ exports.getProducts = async (req, res) => {
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
-    // Execute query
-    const [products, totalProducts] = await Promise.all([
-      Product.find(filter)
-        .sort(sortOptions)
-        .skip(skip)
-        .limit(limitNum)
-        .lean(),
-      Product.countDocuments(filter)
+    // Execute query - get products first
+    let products = await Product.find(filter)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    // Get total stock for each product from batches
+    const productIds = products.map(p => p._id);
+    
+    const batchStockData = await ProductBatch.aggregate([
+      { 
+        $match: { 
+          product: { $in: productIds }, 
+          isActive: true 
+        } 
+      },
+      { 
+        $group: { 
+          _id: '$product', 
+          totalStock: { $sum: '$stock' } 
+        } 
+      }
     ]);
+
+    // Create a map of product ID to total stock
+    const stockMap = {};
+    batchStockData.forEach(item => {
+      stockMap[item._id.toString()] = item.totalStock;
+    });
+
+    // Add totalStock to each product
+    products = products.map(product => ({
+      ...product,
+      totalStock: stockMap[product._id.toString()] || 0
+    }));
+
+    // Apply stock filter AFTER calculating stock
+    if (inStock === 'true') {
+      products = products.filter(p => p.totalStock > 0);
+    }
+
+    // Get total count for pagination
+    const totalProducts = await Product.countDocuments(filter);
 
     // Calculate pagination metadata
     const totalPages = Math.ceil(totalProducts / limitNum);
@@ -115,7 +145,14 @@ exports.getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findById(id);
+    // Get product and populate batches
+    const product = await Product.findById(id)
+      .populate({
+        path: 'batches',
+        match: { isActive: true },
+        options: { sort: { expiryDate: 1 } } // FEFO: earliest expiry first
+      })
+      .lean();
 
     if (!product) {
       return res.status(404).json({
@@ -130,6 +167,14 @@ exports.getProductById = async (req, res) => {
         message: 'Product is no longer available'
       });
     }
+
+    // Calculate total stock from batches
+    const totalStock = product.batches
+      ? product.batches.reduce((sum, batch) => sum + (batch.stock || 0), 0)
+      : 0;
+
+    // Add totalStock to product object
+    product.totalStock = totalStock;
 
     res.status(200).json({
       success: true,
@@ -167,8 +212,8 @@ exports.getFiltersMetadata = async (req, res) => {
         {
           $group: {
             _id: null,
-            minPrice: { $min: '$mrp' },
-            maxPrice: { $max: '$mrp' }
+            minPrice: { $min: '$standardMRP' },  // Changed from $mrp
+            maxPrice: { $max: '$standardMRP' }   // Changed from $mrp
           }
         }
       ])
@@ -201,51 +246,38 @@ exports.getFiltersMetadata = async (req, res) => {
 exports.createProduct = async (req, res) => {
   try {
     const {
-      name,
-      sku,
+      productName,
+      hsn,
       company,
       category,
       composition,
       packSize,
-      mrp,
-      stock,
+      standardMRP,
       description,
       images,
-      isNew
+      isNewProduct
     } = req.body;
 
-    // Check if SKU already exists
-    const existingProduct = await Product.findOne({ sku: sku.toUpperCase() });
-    if (existingProduct) {
-      return res.status(409).json({
-        success: false,
-        message: 'Product with this SKU already exists',
-        errors: {
-          sku: 'SKU is already in use'
-        }
-      });
-    }
-
+    // Create product (master data only - no batch info)
     const product = await Product.create({
-      name,
-      sku: sku.toUpperCase(),
+      productName,
+      hsn,
       company,
       category,
       composition,
       packSize,
-      mrp,
-      stock,
+      standardMRP,
       description,
       images: images || [],
-      isNew: isNew || false,
+      isNewProduct: isNewProduct || false,
       createdBy: req.user.userId
     });
 
-    console.log(`✅ New product created: ${product.name} (${product.sku})`);
+    console.log(`✅ New product created: ${product.productName}`);
 
     res.status(201).json({
       success: true,
-      message: 'Product created successfully',
+      message: 'Product created successfully. Now add batches to this product.',
       data: { product }
     });
 
@@ -296,7 +328,7 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
-    console.log(`✅ Product updated: ${product.name} (${product.sku})`);
+    console.log(`✅ Product updated: ${product.productName}`);
 
     res.status(200).json({
       success: true,
@@ -348,7 +380,7 @@ exports.deleteProduct = async (req, res) => {
       });
     }
 
-    console.log(`🗑️  Product deleted: ${product.name} (${product.sku})`);
+    console.log(`🗑️  Product deleted: ${product.productName}`);
 
     res.status(200).json({
       success: true,

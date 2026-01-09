@@ -1,37 +1,64 @@
-// src/components/client/dashboard/CarouselSlider.jsx
-import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useTheme } from '@/contexts/useTheme';
+// src/components/client/dashboard/CarousalSlider.jsx
+
+import React, { useState, useEffect } from "react";
+import api from '@/services/api' // Centralized API instance (handles base URL + auth token automatically)
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useTheme } from "@/contexts/useTheme";
+import { useNavigate } from "react-router-dom"; // For programmatic navigation
 import {
   ChevronLeft,
   ChevronRight,
   Building,
   Grid3X3,
-  Send,
-  Zap,
-  ArrowRight,
 } from 'lucide-react';
 
-const CarouselSlider = () => {
+const CarousalSlider = () => {
+  
+  // ============================================
+  // STATE MANAGEMENT
+  // ============================================
+  
+  // Track which slide is currently visible (0 = first slide)
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { theme } = useTheme();
+  
+  // Track if user is hovering (pauses auto-slide)
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // Store companies fetched from backend API
+  const [companies, setCompanies] = useState([]);
+  
+  // Store categories fetched from backend API
+  const [categories, setCategories] = useState([]);
+  
+  // Track loading state (true while fetching data)
+  const [loading, setLoading] = useState(true);
 
-  const isDark =
-    theme === 'dark' ||
-    (theme === 'system' &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches);
+  // ============================================
+  // HOOKS & UTILITIES
+  // ============================================
+  
+  const navigate = useNavigate(); // Function to navigate to different routes
+  const { theme } = useTheme(); // Get current theme (light/dark/system)
 
-  const carouselSlides = [
+  // Check if dark mode is active
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+  // ============================================
+  // SLIDE CONFIGURATION
+  // ============================================
+  
+  // Array of slide objects - each slide has its own content and style
+  const carousalSlides = [
     {
-      type: 'instant-payment',
+      type: 'instant-payment', // Unique identifier for this slide
       title: 'Special Discount on Instant Payment',
       description: 'Get up to 10% extra discount on immediate payments',
       badge: 'Limited Offer',
-      cta: 'View All Products',
-      gradientLight: 'from-orange-400 via-orange-500 to-orange-600',
-      gradientDark: 'from-orange-900 via-orange-950 to-orange-950',
+      cta: 'View All Products', // Call-to-action button text
+      gradientLight: 'from-orange-400 via-orange-500 to-orange-600', // Light mode gradient
+      gradientDark: 'from-orange-900 via-orange-950 to-orange-950', // Dark mode gradient
     },
     {
       type: 'bulk',
@@ -45,12 +72,12 @@ const CarouselSlider = () => {
     {
       type: 'companies',
       title: 'Our Trusted Partners',
-      description: 'Explore products from 4 verified pharmaceutical companies',
+      description: 'Explore products from verified pharmaceutical companies',
       badge: 'Company Gallery',
-      cta: null,
+      cta: null, // No button for this slide
       gradientLight: 'from-blue-400 via-blue-500 to-blue-600',
       gradientDark: 'from-blue-900 via-blue-950 to-gray-900',
-      showCompanies: true,
+      showCompanies: true, // Flag: show company grid on this slide
     },
     {
       type: 'categories',
@@ -60,14 +87,13 @@ const CarouselSlider = () => {
       cta: null,
       gradientLight: 'from-green-400 via-green-500 to-green-600',
       gradientDark: 'from-green-900 via-green-950 to-green-950',
-      showCategories: true,
-      categories: ['Cardiac Range', 'Diabetic Care', 'Pain Management'],
+      showCategories: true, // Flag: show category grid on this slide
     },
     {
       type: 'ordering',
       title: 'Ordering Process',
       description: 'Simple 3-step process to place your order',
-      badge: 'How To',
+      badge: 'How To Order',
       cta: 'Learn Process',
       gradientLight: 'from-teal-400 via-teal-500 to-teal-600',
       gradientDark: 'from-teal-900 via-teal-950 to-teal-950',
@@ -93,7 +119,7 @@ const CarouselSlider = () => {
     {
       type: 'notice',
       title: 'Important Notice',
-      description: 'Updated delivery schedule for Diwali holidays - Oct 30-Nov 5',
+      description: 'Updated delivery schedule for upcoming holidays',
       badge: 'Alert',
       cta: 'Read More',
       gradientLight: 'from-yellow-400 via-yellow-500 to-yellow-600',
@@ -101,165 +127,209 @@ const CarouselSlider = () => {
     },
   ];
 
+  // ============================================
+  // AUTO-SLIDE EFFECT (with hover pause)
+  // ============================================
+  
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselSlides.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [carouselSlides.length]);
+    // Only run auto-slide if user is NOT hovering
+    if (!isHovered) {
+      // Create a timer that runs every 4 seconds
+      const timer = setInterval(() => {
+        // Move to next slide (wraps back to 0 after last slide)
+        setCurrentSlide((prev) => (prev + 1) % carousalSlides.length);
+      }, 4000);
 
-  const handleCompanyClick = (companyIndex) => {
-    console.log(`Navigate to company ${companyIndex + 1} products`);
+      // Cleanup: Clear the timer when component unmounts or when dependencies change
+      // This prevents memory leaks
+      return () => clearInterval(timer);
+    }
+  }, [carousalSlides.length, isHovered]); // Re-run effect if slide count or hover state changes
+
+  // ============================================
+  // FETCH COMPANIES & CATEGORIES FROM API
+  // ============================================
+  
+  useEffect(() => {
+    // Define async function inside useEffect (can't make useEffect itself async)
+    const fetchData = async () => {
+      try {
+        // Start loading state
+        setLoading(true);
+
+        // API call using our centralized api instance
+        // - No need to add base URL (handled by api.js)
+        // - No need to add auth token (handled by interceptor)
+        // - No need to call .json() (axios does it automatically)
+        const response = await api.get('/products/filters/metadata');
+
+        // Check if API returned success
+        if (response.data.success) {
+          // Extract and save companies array
+          setCompanies(response.data.data.companies);
+          
+          // Extract and save categories array
+          setCategories(response.data.data.categories);
+        }
+      } catch (e) {
+        // Error handling with detailed logging
+        console.error('❌ Error fetching filters:', e.message);
+        console.error('❌ Status code:', e.response?.status); // HTTP status (401, 404, 500, etc.)
+        console.error('❌ Server message:', e.response?.data); // Server's error response
+      } finally {
+        // Always stop loading, whether success or error
+        setLoading(false);
+      }
+    }
+    
+    // Call the async function
+    fetchData();
+  }, []); // Empty dependency array = run only once on component mount
+
+  // ============================================
+  // HANDLE CTA BUTTON CLICKS
+  // ============================================
+  
+  const handleCtaClick = (slideType) => {
+    // Navigate to different routes based on slide type
+    if (slideType === 'instant-payment') {
+      navigate('/products');
+    } else if (slideType === 'bulk') {
+      navigate('/inquiry');
+    } else if (slideType === 'ordering') {
+      navigate('/orderingGuide');
+    } else if (slideType === 'credit') {
+      navigate('/creditTerms');
+    }
+    // Add more routes as needed
   };
 
-  const handleCategoryClick = (category) => {
-    console.log(`Navigate to ${category} products`);
-  };
+  // ============================================
+  // RENDER COMPONENT
+  // ============================================
 
   return (
-    <Card className="overflow-hidden shadow-lg">
+    <Card 
+      className="overflow-hidden shadow-lg" 
+      onMouseEnter={() => setIsHovered(true)}  // Pause auto-slide when mouse enters
+      onMouseLeave={() => setIsHovered(false)} // Resume auto-slide when mouse leaves
+    >
       <div className="relative">
-        <div
-          className="flex transition-transform duration-500 ease-in-out"
+        {/* Slide Container - moves left/right using transform */}
+        <div 
+          className="flex transition-transform duration-500 ease-in-out" 
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+          // Example: currentSlide=0 → translateX(0%), currentSlide=1 → translateX(-100%)
         >
-          {carouselSlides.map((slide, index) => (
-            <div
-              key={index}
-              className={`w-full flex-shrink-0 text-white bg-gradient-to-r ${
-                isDark ? slide.gradientDark : slide.gradientLight
-              }`}
-            >
-              <div className="p-8 lg:p-12">
-                <div className="max-w-4xl mx-auto">
-                  <Badge className="mb-4 bg-white/20 text-white border-white/30 hover:bg-white/25">
-                    {slide.badge}
-                  </Badge>
-                  <h3 className="text-2xl lg:text-3xl font-bold mb-3">
-                    {slide.title}
-                  </h3>
-                  <p className="text-lg opacity-90 mb-6">{slide.description}</p>
+          {
+            // Loop through each slide and render it
+            carousalSlides.map((slide, index) => (
+              <div 
+                key={index} 
+                className={`w-full flex-shrink-0 text-white bg-gradient-to-r ${isDark ? slide.gradientDark : slide.gradientLight}`}
+                // Each slide takes full width (w-full) and doesn't shrink (flex-shrink-0)
+              >
+                <div className="p-4 lg:p-6 h-full">
+                  <div className="max-w-4xl mx-auto flex flex-col h-full">
+                    
+                    {/* Slide Badge */}
+                    <Badge className="mb-2 max-w-fit bg-white/20 text-white border-white/30 hover:bg-white/25">
+                      {slide.badge}
+                    </Badge>
+                    
+                    {/* Slide Title */}
+                    <h2 className="text-xl lg:text-2xl font-bold mb-1">{slide.title}</h2>
+                    
+                    {/* Slide Description */}
+                    <p className="text-lg opacity-90 mb-3">{slide.description}</p>
 
-                  {/* Company Grid */}
-                  {slide.showCompanies && (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      {[1, 2, 3, 4].map((company) => {
-                        const [isHovered, setIsHovered] = useState(false);
-                        return (
-                          <div
-                            key={company}
-                            className={`rounded-lg p-6 flex items-center justify-center cursor-pointer transition-all backdrop-blur ${
-                              isHovered ? 'bg-white/30' : 'bg-white/20'
-                            }`}
-                            onClick={() => handleCompanyClick(company - 1)}
-                            onMouseEnter={() => setIsHovered(true)}
-                            onMouseLeave={() => setIsHovered(false)}
+                    {/* ==================== COMPANIES GRID ==================== */}
+                    {/* Only show if: 1) slide has showCompanies flag, AND 2) companies data exists */}
+                    {slide.showCompanies && companies.length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        {companies.map((companyName) => (
+                          // Each company card - clickable, navigates to filtered products page
+                          <div 
+                            key={companyName} // Use company name as unique key
+                            className="rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer transition-all backdrop-blur bg-white/20 hover:bg-white/30" 
+                            onClick={() => navigate(`/products?company=${companyName}`)}
+                            // Navigate with query parameter to filter by company
                           >
-                            <Building
-                              className={`w-12 h-12 text-white transition-opacity ${
-                                isHovered ? 'opacity-100' : 'opacity-80'
-                              }`}
-                            />
+                            <Building className="w-12 h-12 text-white mb-2" />
+                            <p className="font-medium text-xs text-center">{companyName}</p>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Categories */}
-                  {slide.showCategories && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                      {slide.categories.map((category, idx) => {
-                        const [isHovered, setIsHovered] = useState(false);
-                        return (
-                          <div
-                            key={idx}
-                            className={`rounded-lg p-4 text-center cursor-pointer transition-all backdrop-blur ${
-                              isHovered ? 'bg-white/30' : 'bg-white/20'
-                            }`}
-                            onClick={() => handleCategoryClick(category)}
-                            onMouseEnter={() => setIsHovered(true)}
-                            onMouseLeave={() => setIsHovered(false)}
+                    {/* ==================== CATEGORIES GRID ==================== */}
+                    {/* Only show if: 1) slide has showCategories flag, AND 2) categories data exists */}
+                    {slide.showCategories && categories.length > 0 && (
+                      <div className="grid grid-cols-4 md:grid-cols-10 gap-2 mb-2">
+                        {categories.map((categoryName) => (
+                          // Each category card - clickable, navigates to filtered products page
+                          <div 
+                            key={categoryName} // Use category name as unique key
+                            className="rounded-lg p-2 flex flex-col items-center justify-evenly cursor-pointer transition-all backdrop-blur bg-white/20 hover:bg-white/30" 
+                            onClick={() => navigate(`/products?category=${categoryName}`)}
+                            // Navigate with query parameter to filter by category
                           >
-                            <Grid3X3
-                              className={`w-8 h-8 mx-auto mb-2 text-white transition-opacity ${
-                                isHovered ? 'opacity-100' : 'opacity-80'
-                              }`}
-                            />
-                            <p className="font-medium text-sm">{category}</p>
+                            <Grid3X3 className="w-8 h-8 text-white mb-2" />
+                            <p className="font-semibold text-xs break-all md:break-normal p-0 text-center">{categoryName}</p>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
 
-                  {/* CTA Button */}
-                  {slide.cta && (
-                    <Button className="bg-white text-gray-900 hover:bg-gray-100">
-                      {slide.type === 'bulk' && (
-                        <Send className="w-4 h-4 mr-2" />
-                      )}
-                      {slide.type === 'instant-payment' && (
-                        <Zap className="w-4 h-4 mr-2" />
-                      )}
-                      {slide.cta}
-                      {!['bulk', 'instant-payment'].includes(slide.type) && (
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      )}
-                    </Button>
-                  )}
+                    {/* ==================== CTA BUTTON ==================== */}
+                    {/* Only show button if slide has a cta property */}
+                    {slide.cta && (
+                      <Button 
+                        className="bg-white mt-auto text-gray-900 hover:bg-gray-100" 
+                        onClick={() => handleCtaClick(slide.type)}
+                      >
+                        {slide.cta}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          }
         </div>
 
-        {/* Navigation */}
+        {/* ==================== NAVIGATION ARROWS ==================== */}
+        
+        {/* Left Arrow - Go to Previous Slide */}
         <div className="absolute inset-y-0 left-4 flex items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              setCurrentSlide(
-                (prev) =>
-                  (prev - 1 + carouselSlides.length) % carouselSlides.length
-              )
-            }
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setCurrentSlide((prev) => (prev - 1 + carousalSlides.length) % carousalSlides.length)}
+            // Example: If currentSlide=0, go to last slide (7)
+            // Formula: (0 - 1 + 8) % 8 = 7
             className="bg-white/20 text-white hover:bg-white/30"
           >
             <ChevronLeft className="w-5 h-5" />
           </Button>
         </div>
+
+        {/* Right Arrow - Go to Next Slide */}
         <div className="absolute inset-y-0 right-4 flex items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              setCurrentSlide((prev) => (prev + 1) % carouselSlides.length)
-            }
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setCurrentSlide((prev) => (prev + 1) % carousalSlides.length)}
+            // Example: If currentSlide=7 (last), go to slide 0 (first)
+            // Formula: (7 + 1) % 8 = 0
             className="bg-white/20 text-white hover:bg-white/30"
           >
             <ChevronRight className="w-5 h-5" />
           </Button>
         </div>
-
-        {/* Dots */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-          {carouselSlides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentSlide(index)}
-              className={`rounded-full transition-all ${
-                index === currentSlide
-                  ? 'w-8 h-2 bg-white'
-                  : 'w-2 h-2 bg-white/50'
-              }`}
-            />
-          ))}
-        </div>
       </div>
     </Card>
-  );
-};
+  )
+}
 
-export default CarouselSlider;
+export default CarousalSlider;

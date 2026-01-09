@@ -38,7 +38,11 @@ const ProductsPage = () => {
     sortBy: 'name_asc'
   });
   const [searchParams] = useSearchParams();
-
+  const [filterOptions, setFilterOptions] = useState({
+    companies: [],
+    categories: [],
+    priceRange: { min: 0, max: 1000 }
+  });
   // Fetch products from API
   const fetchProducts = async () => {
     setLoading(true);
@@ -50,32 +54,100 @@ const ProductsPage = () => {
       params.append('minPrice', filters.priceRange[0]);
       params.append('maxPrice', filters.priceRange[1]);
       if (filters.inStock) params.append('inStock', 'true');
+
       const [sortField, sortOrder] = filters.sortBy.split('_');
-      params.append('sortBy', sortField === 'name' ? 'name' : 'mrp');
+      params.append('sortBy', sortField === 'name' ? 'productName' : 'mrp');
       params.append('sortOrder', sortOrder);
       params.append('page', 1);
       params.append('limit', 12);
 
+      console.log('🔍 Fetching products with filters:', filters);
+      console.log('🔍 API URL:', `/api/products?${params.toString()}`);
+
+      // ADD THIS: The actual API call that was missing!
       const response = await api.get(`/products?${params.toString()}`);
+
+      console.log('✅ Products received:', response.data);
+
       if (response.data.success) {
         setProducts(response.data.data.products);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('❌ Error fetching products:', error);
+      console.error('❌ Error details:', error.response?.data);
       setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
+
   useEffect(() => {
     const searchFromURL = searchParams.get('search');
+    const companyFromURL = searchParams.get('company');
+    const categoryFromURL = searchParams.get('category');
+
+    const urlFilters = {};
+
     if (searchFromURL) {
-      setFilters(prev => ({ ...prev, search: searchFromURL }));
+      urlFilters.search = searchFromURL;
     }
-    fetchProducts();
+
+    if (companyFromURL) {
+      urlFilters.company = [companyFromURL]; // Wrap in array since filters.company is an array
+    }
+
+    if (categoryFromURL) {
+      urlFilters.category = [categoryFromURL]; // Wrap in array since filters.category is an array
+    }
+
+    // Only update if we found URL params
+    if (Object.keys(urlFilters).length > 0) {
+      setFilters(prev => ({ ...prev, ...urlFilters }));
+    }
+
+    // Don't call fetchProducts here - let the filters useEffect handle it
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+// ✅ ADD THIS: Fetch filter metadata on mount
+useEffect(() => {
+  const fetchFilterMetadata = async () => {
+    try {
+      console.log('🔍 Fetching filter metadata...');
+      const response = await api.get('/products/filters/metadata');
+      
+      console.log('✅ Filter metadata received:', response.data);
+      
+      if (response.data.success) {
+        setFilterOptions({
+          companies: response.data.data.companies,
+          categories: response.data.data.categories,
+          priceRange: response.data.data.priceRange
+        });
+        
+        // OPTIONAL: Update initial price range from database
+        setFilters(prev => ({
+          ...prev,
+          priceRange: [
+            response.data.data.priceRange.min,
+            response.data.data.priceRange.max
+          ]
+        }));
+        
+        console.log('✅ Filter options set:', {
+          companies: response.data.data.companies.length,
+          categories: response.data.data.categories.length
+        });
+      }
+    } catch (error) {
+      console.error('❌ Error fetching filter metadata:', error);
+      console.error('❌ Error details:', error.response?.data);
+    }
+  };
+  
+  fetchFilterMetadata();
+}, []); // Empty array = run once on mount
 
   useEffect(() => {
     fetchProducts();
@@ -155,6 +227,7 @@ const ProductsPage = () => {
               <ProductFilters
                 filters={tempFilters || filters}
                 onFilterChange={handleFilterChange}
+                filterOptions={filterOptions}
               />
               <Button
                 onClick={handleApplyFilters}
@@ -175,9 +248,8 @@ const ProductsPage = () => {
               />
 
               {/* ProductGrid wrapper */}
-              <div className={`transition-all duration-300 ${
-                isDrawerOpen ? 'lg:pr-[350px]' : ''
-              }`}>
+              <div className={`transition-all duration-300 ${isDrawerOpen ? 'lg:pr-[350px]' : ''
+                }`}>
                 <ProductGrid
                   products={products}
                   loading={loading}
@@ -199,6 +271,7 @@ const ProductsPage = () => {
         filters={tempFilters || filters}
         onFilterChange={handleFilterChange}
         onApply={handleApplyFilters}
+        filterOptions={filterOptions}
       />
 
       {/* Product Detail Drawer */}
