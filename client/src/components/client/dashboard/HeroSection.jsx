@@ -1,8 +1,10 @@
 // src/components/client/dashboard/HeroSection.jsx
-import React from 'react';
+import React, {useState} from 'react';
+import QuickReorderModal from './QuickReorderModal'; // Same folder mein hai na?
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from "react-router-dom"; // For programmatic navigation
 import {
   CheckCircle,
   Clock,
@@ -13,8 +15,17 @@ import {
   Shield
 } from 'lucide-react';
 
+
+
 const HeroSection = () => {
   const { user } = useAuth();
+
+  const navigate = useNavigate(); // Function to navigate to different routes
+
+  // const [isQuickReorderLoading, setIsQuickReorderLoading] = useState(false);
+  const [isQuickReorderOpen, setIsQuickReorderOpen] = useState(false);
+
+
 
   const getHeroMessage = () => {
     if (user?.status !== 'Approved') {
@@ -24,9 +35,10 @@ const HeroSection = () => {
   };
 
   return (
+    <>
     <div className="relative overflow-hidden rounded-3xl text-white shadow-xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-500 dark:from-emerald-900 dark:via-emerald-800 dark:to-teal-800">
       <div className="absolute inset-0 bg-black/5 dark:bg-black/30"></div>
-      
+
       <div className="relative grid lg:grid-cols-2 gap-8 p-8 lg:p-12">
         {/* Left Content */}
         <div className="space-y-6">
@@ -63,6 +75,9 @@ const HeroSection = () => {
               size="lg"
               className="bg-white text-green-700 hover:bg-gray-50 dark:bg-gray-100 dark:text-green-800 dark:hover:bg-gray-200 font-semibold px-8 shadow-lg"
               disabled={user?.status !== 'Approved'}
+              onClick={() => {
+                setIsQuickReorderOpen(true);
+              }}
             >
               <RotateCcw className="w-5 h-5 mr-2" />
               Quick Reorder
@@ -71,6 +86,7 @@ const HeroSection = () => {
               size="lg"
               variant="outline"
               className="border-white/30 text-white hover:bg-white/10 bg-white/10 backdrop-blur-sm"
+              onClick={() => navigate('/products')}
             >
               <Package className="w-5 h-5 mr-2" />
               Browse Catalogue
@@ -84,11 +100,11 @@ const HeroSection = () => {
               <div className="text-sm opacity-75">Products</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">3-4</div>
+              <div className="text-2xl font-bold">5</div>
               <div className="text-sm opacity-75">Trusted Companies</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">48</div>
+              <div className="text-2xl font-bold">24</div>
               <div className="text-sm opacity-75">Hours Avg Delivery</div>
             </div>
           </div>
@@ -111,7 +127,16 @@ const HeroSection = () => {
         </div>
       </div>
     </div>
+    {isQuickReorderOpen && (
+      <QuickReorderModal
+        isOpen={isQuickReorderOpen}
+        onClose={() => setIsQuickReorderOpen(false)}
+      />
+    )}
+    </>
   );
+  
 };
+
 
 export default HeroSection;
